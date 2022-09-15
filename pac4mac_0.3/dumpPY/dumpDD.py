@@ -6,7 +6,7 @@ import sys, os
 import time
 import os.path
 import re
-import commands
+import subprocess
 import sqlite3 as lite
 import time,datetime
 
@@ -25,7 +25,7 @@ dir_path_ddrescue = 'tools/dd/'
 
 def print_red(text):
 	print ('\033[22;31m' + text + '\033[0;m')
-		
+
 def print_in(text):
 	print ('\033[0;34m' + text + '\033[1;m')
 
@@ -43,7 +43,7 @@ def fct_writefile(var_x, file_x):
 	file = open(file_x,'a')
 	file.write(var_x)
 	file.close()
-	
+
 def fct_writefile_del(var_x, file_x):
 	file_x = file_x.replace("\ "," ")
 	file = open(file_x,'w')
@@ -64,19 +64,19 @@ def fct_copy_dd():
 		print_log("\nAvailable disks > ")
 		disk_avail = os.popen("diskutil list").read()
 		print_green(disk_avail)
-		disk_to_clone=raw_input("Select the source disk to clone [ex : disk1s1] (b to back) > ")
+		disk_to_clone= input("Select the source disk to clone [ex : disk1s1] (b to back) > ")
 
 		if disk_to_clone != "b":
 			if os.path.exists("/dev/r" + disk_to_clone):
 				print_log("\nInformation about [" + disk_to_clone + "] disk > ")
 				info_disk = os.popen("diskutil info " + disk_to_clone).read()
 				print_green(info_disk)
-				launch_dd2 = raw_input("Are you sure to clone " + disk_to_clone + " disk ? [y]/n > ")
-				if launch_dd2 == "n" : 
+				launch_dd2 = input("Are you sure to clone " + disk_to_clone + " disk ? [y]/n > ")
+				if launch_dd2 == "n" :
 					disk_to_clone = "null"
 				else:
-					other_target = raw_input("\nDo you want to backup disk image to " + dir_results + " ? [y]/n >  " )
-					if other_target == 'n': 
+					other_target = input("\nDo you want to backup disk image to " + dir_results + " ? [y]/n >  " )
+					if other_target == 'n':
 						select_vol_target = fct_select_target()
 						dir_results = select_vol_target + "/Pac4Mac/" + dir_results
 						dir_pac4mac = select_vol_target + "/Pac4Mac/"
@@ -90,11 +90,11 @@ def fct_copy_dd():
 
 						if not os.path.isdir(dir_results):
 							os.makedirs(dir_results)
-					
+
 					else:
 						if not os.path.isdir(dir_results):
 							os.makedirs(dir_results)
-					
+
 					dir_path_DD = dir_results + "/disk_image"
 					file_dump_DD = dir_path_DD + "/image_DD.raw"
 					file_log_dd = dir_path_DD + "/image_DD.log"
@@ -112,7 +112,7 @@ def fct_copy_dd():
 					print_green("\nCloning with success !\n")
 					os.system('chmod -Rf 777 ' + dir_results)
 					os.system('chmod -Rf 777 ' + dir_results + "/*")
-					raw_input()
+					input()
 			else:
 				print_red("\nPlease to select a valid disk or partition ...\n")
 				disk_to_clone = "null"
@@ -126,10 +126,10 @@ def fct_select_target():
 		print_log("\nAvailable mounted removable disks > ")
 		mounted_vol = os.popen('mount | grep Volume | cut -d "/" -f 5').read()
 		print_green(mounted_vol)
-		
-		vol_target = raw_input("Select the target disk [ex: USBDisk, Macintosh HD] (b to back) > ")
-		
-		if vol_target != "b":		
+
+		vol_target = input("Select the target disk [ex: USBDisk, Macintosh HD] (b to back) > ")
+
+		if vol_target != "b":
 			select_vol_target = "/Volumes/" + vol_target
 			if os.path.isdir(select_vol_target):
 				return select_vol_target
@@ -155,9 +155,6 @@ print_log("From Macbook to analyse, you can copy local disk to removable disk")
 
 print_red("\n          ==== Plug source disk (Macbook or USB Disk) to copy ====")
 print_green("========================================================================")
-launch_dd = raw_input("Press enter when the source disk is plugged (b to back) ")
+launch_dd = input("Press enter when the source disk is plugged (b to back) ")
 if launch_dd != "b":
 	fct_copy_dd()
-
-
-

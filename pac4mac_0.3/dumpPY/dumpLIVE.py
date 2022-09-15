@@ -6,7 +6,7 @@ import sys, os
 import time
 import os.path
 import re
-import commands
+import subprocess
 import sqlite3 as lite
 import time,datetime
 
@@ -36,7 +36,7 @@ file_dump_RAM = '../../../' + dir_path_RAM + '/RAM_memory.dmp'
 
 CheckOut4Mac_path = 'tools/CheckOut4Mac/chk4mac_0.2.py'
 
-#file log pac4mac 
+#file log pac4mac
 file_history_dest = dir_results + '/#log_pac4mac.txt'
 
 #userfile files
@@ -76,7 +76,7 @@ def print_red(text):
 
 def print_red_bold(text):
 	print ('\033[1;31m' + text + '\033[0;m')
-		
+
 def print_in(text):
 	print ('\033[0;34m' + text + '\033[1;m')
 
@@ -93,7 +93,7 @@ def fct_writefile(var_x, file_x):
 	file_to_write = open(file_x,'a')
 	file_to_write.write(var_x)
 	file_to_write.close()
-	
+
 def fct_writefile_del(var_x, file_x):
 	file_to_write = open(file_x,'w')
 	file_to_write.write(var_x)
@@ -109,23 +109,23 @@ def fct_exploit_DMA():
 	print_log("\nNote : Please to install libforensic1394 [" +  dir_path_incept + "README.md" + "]")
 	print_log("Note2 : Please to custom [#!/usr/bin/env python3.X] into [" + dir_path_incept + "incept.py]")
 	print_log("Note3 : Please to custom variable [python3X] into [" + sys.argv[0] + "]\n")
-	
+
 	var_attack = "null"
 	while var_attack == "null":
 		print_green("\nPlug Firewire wire between your Mac and Mac to analyse AND : ")
 		print_green("1: Dump volatile memory")
 		print_green("2: Unlock session")
 
-		var_attack = raw_input("\nYour choice (b to back) > ")
-		if var_attack == "1": 
+		var_attack = input("\nYour choice (b to back) > ")
+		if var_attack == "1":
 			fct_dump_RAM_DMA()
 			var_attack = "null"
-		elif var_attack == "2": 
+		elif var_attack == "2":
 			fct_unlock_DMA()
 			var_attack = "null"
-		elif var_attack == "b": 
+		elif var_attack == "b":
 			var_attack = "no_null"
-		else: 
+		else:
 			print_red("\nPlease to choose 1 or 2 ...\n")
 			var_attack = "null"
 
@@ -135,9 +135,9 @@ def fct_dump_RAM_DMA():
 	print_red("\n========================================================================")
 	print_red("                   ==== dump of volatile memory ====")
 	print_red("========================================================================")
-	var_dump_mem = raw_input("Do you want to dump volatile memory by DMA ? y/[n] > ")
+	var_dump_mem = input("Do you want to dump volatile memory by DMA ? y/[n] > ")
 	if var_dump_mem == "y":
-		
+
 		if not os.path.isfile(file_dump_RAM_DMA):
 
 			if not os.path.isdir(root_dir_results):
@@ -183,11 +183,11 @@ def fct_unlock_DMA():
 	print_log("You could unlock session with all non-blank passwords ...")
 	print_log("You could escalade your privileges to gain root access ... ")
 	var_unlock = raw_input("Do you want to attempt to launch these operations ? y/[n] > ")
-	if var_unlock == "y": 
+	if var_unlock == "y":
 		os.system(python3X + " " + dir_path_incept + "incept test test")
 		print_green("\nYou can try to open any session with all non-blank passwords !")
 		print_green("You can try to launch 'su root' to get root privileges !")
-	else: 
+	else:
 		print_log("Unlock session not launched")
 		print_log("Privileges escalation not launched")
 	print_red("========================================================================")
@@ -204,7 +204,7 @@ def fct_dump_RAM_soft():
 	print_red("                   ==== dump of VOLATILE MEMORY ====")
 	print_red("========================================================================")
 	print_log("[RAM_DUMP] to extract volatile memory")
-	var_dump_mem=raw_input("Do you want to dump volatile memory ? y/[n] > ")
+	var_dump_mem= input("Do you want to dump volatile memory ? y/[n] > ")
 	if var_dump_mem == "y":
 
 		if not os.path.isfile(file_dump_RAM_DMA):
@@ -215,7 +215,7 @@ def fct_dump_RAM_soft():
 
 			if not os.path.exists(dir_results):
 				os.makedirs(dir_results)
-			
+
 			if not os.path.exists(dir_path_RAM):
 				os.makedirs(dir_path_RAM)
 
@@ -228,7 +228,7 @@ def fct_dump_RAM_soft():
 			#good right
 			os.system('chmod -R 741 ' + dir_path_osxpmem)
 			os.system('chown -R root:wheel ' + dir_path_osxpmem)
-			
+
 			current_cwd = os.getcwd()
 			os.chdir(dir_path_osxpmem)
 
@@ -266,7 +266,7 @@ def fct_Checkout4Mac():
 	if not os.path.exists(dir_results):
 		os.makedirs(dir_results)
 
-	
+
 	#log activity
 	var_log = str(datetime.datetime.now()) + ": " + "CheckOut4Mac\n"
 	fct_writefile(var_log, file_history_dest)
@@ -309,7 +309,7 @@ def fct_get_system_conf():
 	#extract username list
 	file_user = open(file_userslist,'r')
 	lines_username = file_user.readlines()
-	file_user.close()	
+	file_user.close()
 
 	#extract pid user/root
 	print_red_bold("\n[] Dump PID")
@@ -332,7 +332,7 @@ def fct_get_system_conf():
 	print_green("========================================================================")
 	print_log("[LSOF_VMMAP] Launching of lsof and vmmap commands on all the PID]")
 	print_green("Launching of the command, be patient ...\n...\n...")
-	
+
 	file_user = open(file_pid,'r')
 	lines_pid = file_user.readlines()
 	file_user.close()
@@ -343,11 +343,11 @@ def fct_get_system_conf():
 			fct_writefile(vmmap_data, file_vmmap)
 			lsof_data = os.popen("lsof -p " + lines_pid[i]).read()
 			fct_writefile(lsof_data, file_lsof)
-	
+
 	print_log("[LSOF_VMMAP] Stored into " + file_lsof + " and " + file_vmmap)
 	print_green("========================================================================")
 
-	os.system('python dumpPY/dumpMAIN.py ' + var_version + ' LIVE ' + dir_results)
+	os.system('python3 dumpPY/dumpMAIN.py ' + var_version + ' LIVE ' + dir_results)
 
 
 
@@ -359,7 +359,7 @@ def fct_get_system_conf():
 		################################################################################################################
 
 var_uid = os.geteuid()
-if var_uid != 0 : 
+if var_uid != 0 :
 	print_red("\nPlease run program with root privileges.\n")
 	sys.exit()
 
@@ -379,9 +379,15 @@ elif var_version == "15":
 elif var_version == "16":
 	os_version = "Sierra / 10.12"
 elif var_version == "17":
-        os_version = "High Sierra / 10.13"
+    os_version = "High Sierra / 10.13"
 elif var_version == "18":
-        os_version = "Mojave / 10.14"
+    os_version = "Mojave / 10.14"
+elif var_version == "19":
+	os_version = "Catalina / 10.15"
+elif var_version == "20":
+	os_version = "Big Sur / 11.6"
+elif var_version == "21":
+	os_version = "Monterey 12.4"
 else:
 	print_red("\nUnsupported OS version.")
 	os_version = "Unknown version"
@@ -402,22 +408,22 @@ while var_action == "null":
 	print_green("4: Detect recent malicious activities with CheckOut4Mac (from Macbook to analyze)")
 
 
-	var_action=raw_input("\nYour choice (b to back) > ")
+	var_action= input("\nYour choice (b to back) > ")
 
-	if var_action == "1": 
+	if var_action == "1":
 		fct_exploit_DMA()
 		var_action = "null"
-	elif var_action == "2": 
+	elif var_action == "2":
 		fct_dump_RAM_soft()
 		var_action = "null"
-	elif var_action == "3": 
+	elif var_action == "3":
 		var_action = "null"
 		fct_get_system_conf()
-	elif var_action == "4": 
+	elif var_action == "4":
 		var_action = "null"
 		fct_Checkout4Mac()
-	elif var_action == "b": 
+	elif var_action == "b":
 		var_action = "no_null"
-	else: 
+	else:
 		print_red("\nPlease to choose 1, 2, 3 or 4 ...\n")
 		var_action = "null"

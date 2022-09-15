@@ -6,7 +6,7 @@ import sys, os
 import time
 import os.path
 import re
-import commands
+import subprocess
 import sqlite3 as lite
 import time,datetime
 
@@ -21,7 +21,7 @@ file_os_version="/System/Library/CoreServices/SystemVersion.plist"
 var_datestart = time.strftime('%y%m%d-%Hh%M%S',time.localtime())
 dir_results = 'results/' + str(var_datestart)
 
-#file log pac4mac 
+#file log pac4mac
 file_history_dest = dir_results + '/#log_pac4mac.txt'
 
 
@@ -31,7 +31,7 @@ file_history_dest = dir_results + '/#log_pac4mac.txt'
 
 def print_red(text):
 	print ('\033[22;31m' + text + '\033[0;m')
-		
+
 def print_in(text):
 	print ('\033[0;34m' + text + '\033[1;m')
 
@@ -48,7 +48,7 @@ def fct_writefile(var_x, file_x):
 	file = open(file_x,'a')
 	file.write(var_x)
 	file.close()
-	
+
 def fct_writefile_del(var_x, file_x):
 	file = open(file_x,'w')
 	file.write(var_x)
@@ -62,14 +62,14 @@ def fct_writefile_del(var_x, file_x):
 def fct_data_dump():
 
 	vol_target = "null"
-	
+
 	while vol_target == "null":
 		print_log("\nAvailable mounted removable disks > ")
 		mounted_vol=os.popen('mount | grep Volume | cut -d "/" -f 5').read()
 		print_green(mounted_vol)
 		vol_target=raw_input("Select the target disk [ex: Macintosh HD 1] (b to back) > ")
-		
-		if vol_target != "b": 
+
+		if vol_target != "b":
 			select_vol_target = "/Volumes/" + vol_target
 			if os.path.isdir(select_vol_target) and vol_target != "":
 				select_vol_target = select_vol_target.replace(" ","\ ")
@@ -92,7 +92,7 @@ def fct_data_dump():
 						var_version = "15"
 					elif "10.12" in var_version:
 						var_version = "16"
-					else: 
+					else:
 						print_red("\nUnsupported OS version...")
 						var_version = "16"
 					os.system('python dumpPY/dumpMAIN.py ' + var_version + ' target ' + select_vol_target)
