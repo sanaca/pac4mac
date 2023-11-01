@@ -96,6 +96,10 @@ while var_attack != "q":
 		print_red("Votre version d'OSX est: Big Sur / 11.6")
 	elif var_version == "21" :
 		print_red("Votre version d'OSX est: Monterey / 12.4")
+	elif var_version == "22" :
+		print_red("Votre version d'OSX est: Ventura / 13.5")
+	elif var_version == "23" :
+		print_red("Votre version d'OSX est: Sonoma / 14.1")
 	else:
 		print_red("\n\nVersion d'OSX non supporté.\n\n")
 		exit()

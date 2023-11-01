@@ -10,7 +10,7 @@ import os.path
 import re
 import sqlite3 as lite
 import time,datetime
-import commands
+import subprocess
 import thread
 import plistlib
 import shutil
@@ -69,7 +69,7 @@ for file in os.listdir(dir_results):
 ############################################
 def print_red(text) :
 	print ('\033[22;31m' + text + '\033[0;m')
-		
+
 def print_in(text) :
 	print ('\033[0;34m' + text + '\033[1;m')
 
@@ -86,7 +86,7 @@ def fct_writefile(var_x, file_x):
 	file = open(file_x,'a')
 	file.write(var_x)
 	file.close()
-	
+
 def fct_writefile_del(var_x, file_x):
 	file = open(file_x,'w')
 	file.write(var_x)
@@ -104,7 +104,7 @@ def fct_add_pass_database(passwords):
 #generate main password database
 ############################################
 def fct_generate_password(just_found):
-	
+
 	tab_pass = []
 	#ALL-password1
 	if os.path.exists(file_password_database):
@@ -124,7 +124,7 @@ def fct_generate_password(just_found):
 
 	if just_found == 0:
 		#personnal password
-		if os.path.exists(file_password_personnal): 
+		if os.path.exists(file_password_personnal):
 			file_password3 = open(file_password_personnal,'r')
 			lines_password_file3 = file_password3.readlines()
 			file_password3.close()
@@ -151,7 +151,7 @@ def fct_display_cookie(browser,db_src_path,output_display_cookies):
 		    with con:
 				con.row_factory = lite.Row
 				cur = con.cursor()
-				
+
 				#If Firefox
 				if browser == "FIREFOX":
 					sql_request="select lastAccessed,Host,Name,expiry from moz_cookies order by lastAccessed DESC"
@@ -168,19 +168,19 @@ def fct_display_cookie(browser,db_src_path,output_display_cookies):
 							print_green(request)
 							to_record = "\n" + request.encode('utf-8')
 							fct_writefile(to_record, output_display_cookies)
-						else: 
+						else:
 							request = "Host:%s Name:%s Last Access:%s Expiration:%s" % (row["Host"], row["Name"], datetime.datetime.fromtimestamp(int(lastAccessed[0:10])).strftime('%Y-%m-%d %H:%M:%S'), datetime.datetime.fromtimestamp(int(expiry[0:10])).strftime('%Y-%m-%d %H:%M:%S'))
 							print_green(request)
 							to_record = "\n" + request.encode('utf-8')
 							fct_writefile(to_record, output_display_cookies)
 
 						counter = counter + 1
-						if counter == 50 and jump == 0: 
+						if counter == 50 and jump == 0:
 							res = raw_input("Press enter to continue (j to jump) > ")
 							counter = 0
 							if res == 'j':
 								jump = 1
-				
+
 				#if Chrome
 				else:
 					sql_request = "select last_access_utc,expires_utc,host_key,name from cookies order by last_access_utc DESC"
@@ -199,7 +199,7 @@ def fct_display_cookie(browser,db_src_path,output_display_cookies):
 						res = filtre_size.findall(str(lastAccessed))
 						for lastAccessed_formated in res:
 							lastAccessed = lastAccessed_formated
-						 
+
 						expiration = int(expiration)/1000000 - 11644473600
 						filtre_size=re.compile('([0-9]{10,10})',re.IGNORECASE)
 						res = filtre_size.findall(str(expiration))
@@ -216,39 +216,39 @@ def fct_display_cookie(browser,db_src_path,output_display_cookies):
 							print_green(request)
 							to_record = "\n" + request.encode('utf-8')
 							fct_writefile(to_record, output_display_cookies)
-						
+
 						counter = counter + 1
-						if counter == 50 and jump == 0: 
+						if counter == 50 and jump == 0:
 							res=raw_input("Press enter to continue (j to jump) > ")
 							counter = 0
 							if res == 'j':
 								jump = 1
-								 
-		except lite.Error, e:	    
-		    print_red("Error %s:" % e.args[0])	
+
+		except lite.Error, e:
+		    print_red("Error %s:" % e.args[0])
 		finally:
 		    if con:
 		        con.close()
-	
+
 	#If Safari
 	elif browser == "SAFARI":
 		counter = 0
 		jump = 0
 		print_red("Displaying not available :(")
 		counter = counter + 1
-		if counter == 50 and jump == 0: 
+		if counter == 50 and jump == 0:
 			res = raw_input("Press enter to continue (j to jump) > ")
 			counter = 0
 			if res == 'j':
 				jump = 1
 
 	#If Opera
-	elif browser == "OPERA": 
+	elif browser == "OPERA":
 		counter = 0
 		jump = 0
 		print_red("Displaying not available :(")
 		counter = counter + 1
-		if counter == 50 and jump == 0: 
+		if counter == 50 and jump == 0:
 			res = raw_input("Press enter to continue (j to jump) > ")
 			counter = 0
 			if res == 'j':
@@ -287,23 +287,23 @@ def fct_xploit_cookies(browser,output_display_cookies):
 			fct_writefile("\nProfil ID " + str(l) + " : " + db_src_path + "\n====================================\n", output_display_cookies)
 			raw_input()
 			l = l + 1
-			
+
 			#connect to sqlite and display cookies display
 			fct_display_cookie(browser,db_src_path,output_display_cookies)
-			
+
 	#inject to your browser, if cookie database previously identified
 	if l >= 1 :
 		print_green("\n========================================================================")
 		inject_or_not = raw_input("Do you want to copy " + browser + " cookies within your browser ? y/[n] > ")
-		
-		if inject_or_not == "y":			
+
+		if inject_or_not == "y":
 			#if severeal profil
 			if len(tab_cookies) > 1:
 				browser_profil=raw_input("Please to choose ID to inject into your browser > ")
 				db_src_path = tab_cookies[int(browser_profil)]
 
 			#if one profil
-			else: 
+			else:
 				db_src_path = tab_cookies[0]
 
 			#replace original cookies by dumped cookies
@@ -332,12 +332,12 @@ def fct_xploit_cookies(browser,output_display_cookies):
 						else : print_red(j + " is not available\nPlease to check " + conf_client + " file")
 						print_green("========================================================================")
 
-		else: 
+		else:
 			print_log("\n[\COOKIES_" + browser + "] Your " + browser + " Cookies have not been replaced ...")
 			print_green("========================================================================")
-		
+
 	#exit, if no cookie database previously identified
-	else: 
+	else:
 		print_log("\n[\COOKIES_" + browser + "] No " + browser + " Cookies has been identified ...")
 		print_green("========================================================================")
 
@@ -356,7 +356,7 @@ def fct_display_history(browser,db_src_path,output_display_history):
 		    with con:
 				con.row_factory = lite.Row
 				cur = con.cursor()
-				
+
 				#if Firefox
 				if browser == "FIREFOX":
 					sql_request = "select title,url,last_visit_date from moz_places order by last_visit_date DESC"
@@ -379,7 +379,7 @@ def fct_display_history(browser,db_src_path,output_display_history):
 							fct_writefile(to_record, output_display_history)
 
 						counter = counter + 1
-						if counter == 10 and jump == 0 : 
+						if counter == 10 and jump == 0 :
 							res = raw_input("Press enter to continue (j to jump) > ")
 							counter = 0
 							if res == 'j':
@@ -406,26 +406,26 @@ def fct_display_history(browser,db_src_path,output_display_history):
 							to_record="\nTitle:%s \nURL:%s\n" % (row["title"], row["url"])
 							to_record=to_record.encode('utf-8')
 							fct_writefile(to_record, output_display_history)
-						else: 
+						else:
 							print_green("\nTitle:%s \nURL:%s \nLast Visit:%s\n" % (row["title"], row["url"], datetime.datetime.fromtimestamp(int(Last_Visit)).strftime('%Y-%m-%d %H:%M:%S')))
 							to_record="\nTitle:%s \nURL:%s \nLast Visit:%s\n" % (row["title"], row["url"], datetime.datetime.fromtimestamp(int(Last_Visit)).strftime('%Y-%m-%d %H:%M:%S'))
 							to_record=to_record.encode('utf-8')
 							fct_writefile(to_record, output_display_history)
 
 						counter = counter + 1
-						if counter == 10 and jump == 0: 
+						if counter == 10 and jump == 0:
 							res=raw_input("Press enter to continue (j to jump) > ")
 							counter = 0
 							if res == 'j':
 								jump = 1
-		except lite.Error, e:	    
-		    print_red("Error %s:" % e.args[0])	
+		except lite.Error, e:
+		    print_red("Error %s:" % e.args[0])
 		finally:
 		    if con:
 		        con.close()
-	
+
 	#if Safari
-	elif browser == "SAFARI": 
+	elif browser == "SAFARI":
 		if os.path.exists(db_src_path + ".xml"):
 			print_log("Binary file already converted to XML ...")
 		else :
@@ -439,7 +439,7 @@ def fct_display_history(browser,db_src_path,output_display_history):
 		tagrURL = 0
 		tagTitle = 0
 		tagURL = 0
-		
+
 		#parsing of XML file
 		counter = 0
 		jump = 0
@@ -454,19 +454,19 @@ def fct_display_history(browser,db_src_path,output_display_history):
 				for j in res:
 					print_green("From : " + j)
 					fct_writefile("\n\nFrom : " + j, output_display_history)
-				tagURL = 0				
-			
+				tagURL = 0
+
 			if "title" in lines[i]:
 				tagTitle = 1
-				continue			
+				continue
 			if tagTitle == 1 and "string" in lines[i]:
 				filtre = re.compile('\<string\>(.+)\<\/string\>',re.IGNORECASE)
 				res = filtre.findall(lines[i])
 				for j in res:
 					print_green("Title : " + j + "\n")
 					fct_writefile("\nTitle : " + j + "\n", output_display_history)
-				tagTitle = 0				
-						
+				tagTitle = 0
+
 			if "lastVisitedDate" in lines[i]:
 				taglVD = 1
 				continue
@@ -481,7 +481,7 @@ def fct_display_history(browser,db_src_path,output_display_history):
 				taglVD = 0
 
 			if "redirectURLs" in lines[i]:
-				tagrURL = 1 
+				tagrURL = 1
 				continue
 			if tagrURL == 1 and "array" in lines[i]:
 				continue
@@ -492,14 +492,14 @@ def fct_display_history(browser,db_src_path,output_display_history):
 					print_green("URL: " + j)
 					fct_writefile("\nURL: " + j, output_display_history)
 				tagrURL = 0
-			if counter == 10 and jump == 0: 
+			if counter == 10 and jump == 0:
 				res = raw_input("Press enter to continue (j to jump) > ")
 				counter = 0
 				if res == 'j':
 					jump = 1
-		
+
 		os.system("rm " + db_src_path + ".xml")
-		
+
 		#creation of tab_ls_history_net_sys
 		if os.path.exists(dir_dump_history_net_sys):
 			tab_ls_history_net_sys = []
@@ -519,14 +519,14 @@ def fct_display_history(browser,db_src_path,output_display_history):
 				for i in range(len(tab_results)):
 					os.popen("open -a preview " + dir_dump_history_net_sys + tab_results[i].strip("\n") + "/*.png")
 					os.popen("open -a preview " + dir_dump_history_net_sys + tab_results[i].strip("\n") + "/*.jpeg")
-	
+
 	#if Opera
-	elif browser == "OPERA": 
+	elif browser == "OPERA":
 		counter = 0
 		jump = 0
 		print_red("Displaying not available :(")
 		counter = counter + 1
-		if counter == 10 and jump == 0: 
+		if counter == 10 and jump == 0:
 			res = raw_input("Press enter to continue (j to jump)")
 			counter = 0
 			if res == 'j':
@@ -545,7 +545,7 @@ def fct_read_history(browser,output_display_history):
 	print_red("========================================================================")
 	print_log("[PLACES_" + browser + "] Following Browser History is available  > ")
 	fct_writefile("\n\n====================================\n" + browser + "\n====================================\n", output_display_history)
-	
+
 	file = open(file_log_browser,'r')
 	lines_log_browser = file.readlines()
 	file.close()
@@ -564,22 +564,22 @@ def fct_read_history(browser,output_display_history):
 			fct_writefile("\nProfil ID " + str(l) + " : " + db_src_path + "\n====================================\n", output_display_history)
 			raw_input()
 			l = l + 1
-	
+
 			fct_display_history(browser,db_src_path,output_display_history)
-			
+
 	#inject to your browser, if cookie database previously identified
 	if l >= 1 :
 		print_green("========================================================================")
 		inject_or_not = raw_input("Do you want to copy " + browser + " history within your browser ? y/[n] > ")
-		
-		if inject_or_not == "y" :			
+
+		if inject_or_not == "y" :
 			#if severeal profil
 			if len(tab_history) > 1 :
 				browser_profil = raw_input("Please to choose ID to inject into your browser > ")
 				db_src_path = tab_history[int(browser_profil)]
 
 			#if one profil
-			else : 
+			else :
 				db_src_path = tab_history[0]
 
 			file = open(conf_client,'r')
@@ -607,11 +607,11 @@ def fct_read_history(browser,output_display_history):
 						else:
 							print_red(j + " is not available\nPlease to check " + conf_client + " file")
 						print_green("========================================================================")
-		else: 
+		else:
 			print_log("\n[\PLACES_" + browser + "] Your " + browser + " History have not been replaced ...")
 			print_green("========================================================================")
-		
-	else: 
+
+	else:
 		print_log("\n[\PLACES_" + browser + "] No " + browser + " History has been identified ... History.db (results/browser_dump/PLACES_SAFARI_<user>_History.db) are not still converted ... sorry :(")
 		print_green("========================================================================")
 
@@ -620,7 +620,7 @@ def fct_read_history(browser,output_display_history):
 ####################################################################################################################################
 											#[read browser download]
 ####################################################################################################################################
-			
+
 ##DOWNLOAD HISTORY (1/2)
 #connect to sqlite and display history display
 def fct_display_downloaded(browser,db_src_path,output_display_download):
@@ -631,7 +631,7 @@ def fct_display_downloaded(browser,db_src_path,output_display_download):
 		    with con:
 				con.row_factory = lite.Row
 				cur = con.cursor()
-				
+
 				#if Firefox
 				if browser == "FIREFOX":
 					sql_request = "select startTime,source,target from moz_downloads order by startTime DESC"
@@ -647,14 +647,14 @@ def fct_display_downloaded(browser,db_src_path,output_display_download):
 							print_green(request)
 							to_record = request.encode('utf-8')
 							fct_writefile(to_record, output_display_download)
-						else : 
+						else :
 							request = "\nURL:%s \nStored in: %s \nStart Time: %s\n" % (row["source"], row["target"], datetime.datetime.fromtimestamp(int(Start_Time[0:10])).strftime('%Y-%m-%d %H:%M:%S'))
 							print_green(request)
 							to_record = request.encode('utf-8')
 							fct_writefile(to_record, output_display_download)
 
 						counter = counter + 1
-						if counter == 10 and jump == 0: 
+						if counter == 10 and jump == 0:
 							res = raw_input("Press enter to continue (j to jump) > ")
 							counter = 0
 							if res == 'j':
@@ -672,7 +672,7 @@ def fct_display_downloaded(browser,db_src_path,output_display_download):
 					for row in rows:
 						#tab_names_column = str(row.keys())
 
-						#old Chrome database 
+						#old Chrome database
 						if "full_path" in str(row.keys()):
 							sql_request = "select url,full_path,start_time from downloads ORDER BY start_time DESC"
 							version_db = "old"
@@ -699,35 +699,35 @@ def fct_display_downloaded(browser,db_src_path,output_display_download):
 								request = "\nURL: %s \nStored in: %s\n" % (row["url"], row["full_path"])
 							else:
 								request = "\nURL: %s \nStored in: %s\n" % (row["url"], row["current_path"])
-							
+
 							print_green(request)
 							to_record = request.encode('utf-8')
 							fct_writefile(to_record, output_display_download)
 
-						else: 
+						else:
 							if version_db == "old":
 								request = "\nURL: %s \nStored in: %s \nStart Time:%s\n" % (row["url"], row["full_path"], datetime.datetime.fromtimestamp(int(Start_Time)).strftime('%Y-%m-%d %H:%M:%S'))
 							else:
 								request = "\nURL: %s \nStored in: %s \nStart Time: %s\n" % (row["url"], row["current_path"], datetime.datetime.fromtimestamp(int(Start_Time)).strftime('%Y-%m-%d %H:%M:%S'))
-							
+
 							print_green(request)
 							to_record = request.encode('utf-8')
 							fct_writefile(to_record, output_display_download)
 
 						counter = counter + 1
-						if counter == 10 and jump == 0 : 
+						if counter == 10 and jump == 0 :
 							res = raw_input("Press enter to continue (j to jump) > ")
 							counter = 0
 							if res == 'j':
 								jump=1
-		except lite.Error, e:	    
+		except lite.Error, e:
 		    print_red("Error %s:" % e.args[0])
 		finally:
 		    if con:
 		        con.close()
 
 	#If Safari
-	elif browser == "SAFARI": 
+	elif browser == "SAFARI":
 		if os.path.exists(db_src_path + ".xml"):
 			print_log("Binary file already converted to XML ...")
 		else:
@@ -756,21 +756,21 @@ def fct_display_downloaded(browser,db_src_path,output_display_download):
 				for j in res:
 					print_green("URL : " + j)
 					fct_writefile("\nURL : " + j + "\n", output_display_download)
-				tagURL = 0				
-			
+				tagURL = 0
+
 			if "DownloadEntryPath" in lines[i] :
 				tagStore=1
 				counter = counter + 1
-				continue		
+				continue
 			if tagStore==1 and "string" in lines[i] :
 				filtre=re.compile('\<string\>(.+)\<\/string\>',re.IGNORECASE)
 				res=filtre.findall(lines[i])
 				for j in res:
 					print_green("\nStored in : " + j)
 					fct_writefile("\nStored in : " + j, output_display_download)
-				tagStore=0				
-				
-			if counter == 10 and jump == 0: 
+				tagStore=0
+
+			if counter == 10 and jump == 0:
 				res=raw_input("Press enter to continue (j to jump) > ")
 				counter = 0
 				if res == 'j':
@@ -779,12 +779,12 @@ def fct_display_downloaded(browser,db_src_path,output_display_download):
 		os.system("rm " + db_src_path + ".xml")
 
 	#If Opera
-	elif browser == "OPERA": 
+	elif browser == "OPERA":
 		counter = 0
 		jump = 0
 		print_red("Displaying not available :(")
 		counter = counter + 1
-		if counter == 10 and jump == 0: 
+		if counter == 10 and jump == 0:
 			res=raw_input("Press enter to continue (j to jump)")
 			counter = 0
 			if res == 'j':
@@ -822,11 +822,11 @@ def fct_read_down_history(browser, output_display_download) :
 			fct_writefile("\nProfil ID " + str(l) + " : " + db_src_path + "\n====================================\n", output_display_download)
 			raw_input()
 			l = l + 1
-			
+
 			#connect to sqlite and display cookies display
 			fct_display_downloaded(browser,db_src_path,output_display_download)
-	
-	if l == 0: 
+
+	if l == 0:
 			print_green("========================================================================")
 			print_log("[\DOWNLOADS_" + browser + "] No " + browser + " Downloads has been identified ...")
 			print_green("========================================================================")
@@ -848,7 +848,7 @@ def fct_exploit_skype():
 		file.close()
 
 		tab_results = []
-		
+
 		filtre = re.compile('^.+\ to\ (.+)\/(.+)$',re.IGNORECASE)
 		for i in range(len(lines_log_skype)):
 			res = filtre.findall(lines_log_skype[i])
@@ -856,13 +856,13 @@ def fct_exploit_skype():
 				path_file_db = one_line[0]
 				file_db = one_line[1]
 				tab_results.append(file_db)
-			
+
 		db_skype_to_analyse = "null"
 		while db_skype_to_analyse == "null":
-			
+
 			print_log("\nAvailable Skype Database files > ")
 			for j in range(len(tab_results)):print_green(str(j) + ". " + tab_results[j])
-			
+
 			db_skype_to_analyse = raw_input("\nChoose a Skype database (b to back) > ")
 			if db_skype_to_analyse != "b":
 				try:
@@ -872,7 +872,7 @@ def fct_exploit_skype():
 						db_skype_to_analyse = path_file_db + "/" + skype_name
 
 						var_analysis = "null"
-						while var_analysis == "null": 
+						while var_analysis == "null":
 							print_log  ("\nAnalysis of : " + db_skype_to_analyse)
 							print_green("========================================================================")
 							print_green("1: Display/Record all recorded messages")
@@ -880,16 +880,16 @@ def fct_exploit_skype():
 							print_green("3: Display/Record all messages containing a special keyword")
 							print_green("b: Back")
 							var_analysis=raw_input("\nAnalysis to launch > ")
-							if var_analysis == "1": 
+							if var_analysis == "1":
 								fct_read_all_skype(db_skype_to_analyse)
 								var_analysis = "null"
-							elif var_analysis == "2": 
+							elif var_analysis == "2":
 								fct_read_pass_skype(db_skype_to_analyse)
 								var_analysis = "null"
-							elif var_analysis == "3": 
+							elif var_analysis == "3":
 								fct_read_special_skype(db_skype_to_analyse)
 								var_analysis = "null"
-							elif var_analysis == "b": 
+							elif var_analysis == "b":
 								db_skype_to_analyse = "null"
 							else:
 								var_analysis = "null"
@@ -917,7 +917,7 @@ def fct_read_all_skype(db_skype_to_analyse) :
 	print_log("\nResults will be stored into " + output_display + "\n")
 	raw_input("Press any key to continue...")
 
-	id_prec = 999999999999999 
+	id_prec = 999999999999999
 	con = None
 	try:
 	    con = lite.connect(db_skype_to_analyse)
@@ -953,13 +953,13 @@ def fct_read_all_skype(db_skype_to_analyse) :
 				id_prec = row["convo_id"]
 
 				counter = counter+1
-				if counter == 5 and jump == 0: 
+				if counter == 5 and jump == 0:
 					res = raw_input("Press enter to continue (j to jump) > ")
 					counter = 0
 					if res == 'j':
 						jump = 1
 
-	except lite.Error, e:	    
+	except lite.Error, e:
 	    print_red("Error %s:" % e.args[0])
 	finally:
 	    if con:
@@ -999,14 +999,14 @@ def fct_read_pass_skype(db_skype_to_analyse):
 				for row in rows:
 					id_skype_plus=int(row["id"]) + 1
 					extprop_chatmsg_ft_index_timestamp=str(row["extprop_chatmsg_ft_index_timestamp"])
-					if extprop_chatmsg_ft_index_timestamp == "None" : 
+					if extprop_chatmsg_ft_index_timestamp == "None" :
 						request = "[chatname]:%s \nAuthor:%s \n  Message:%s" % (row["chatname"], row["author"],row["body_xml"])
 						print_green(request)
 						to_record = "\n" + request.encode('utf-8')
 						fct_writefile(to_record, output_display)
 					else:
 						request = "[chatname]:%s \nDate:%s \nAuthor:%s \n  Message:%s" % (row["chatname"],datetime.datetime.fromtimestamp(int(extprop_chatmsg_ft_index_timestamp[0:10])).strftime('%Y-%m-%d %H:%M:%S'),row["author"],row["body_xml"])
-						print_green(request)	
+						print_green(request)
 						to_record = "\n\n" + request.encode('utf-8')
 						fct_writefile(to_record, output_display)
 
@@ -1019,15 +1019,15 @@ def fct_read_pass_skype(db_skype_to_analyse):
 						print_green(request)
 						to_record = "\n" + request.encode('utf-8')
 						fct_writefile(to_record, output_display)
-					
+
 					counter = counter + 1
-					if counter == 5 and jump == 0 : 
+					if counter == 5 and jump == 0 :
 						res=raw_input("Press enter to continue (j to jump) > ")
 						counter = 0
 						if res == 'j':
 							jump = 1
-		except lite.Error, e:	    
-		    print_red("Error %s:" % e.args[0])	
+		except lite.Error, e:
+		    print_red("Error %s:" % e.args[0])
 		finally:
 		    if con:
 		        con.close()
@@ -1039,7 +1039,7 @@ def fct_read_pass_skype(db_skype_to_analyse):
 
 def fct_read_special_skype(db_skype_to_analyse):
 	keyword=raw_input("Enter your keyword > ")
-			
+
 	#to record
 	var_date_display = time.strftime('%y%m%d-%Hh%M%S',time.localtime())
 	output_display = name_dir_analysis + var_date_display + "_SKYPE_KEYWORD-" + keyword + ".txt"
@@ -1067,29 +1067,29 @@ def fct_read_special_skype(db_skype_to_analyse):
 				for row_plus in rows_plus:
 					if int(row_plus["convo_id"]) != id_prec:
 						extprop_chatmsg_ft_index_timestamp=str(row_plus["extprop_chatmsg_ft_index_timestamp"])
-						if extprop_chatmsg_ft_index_timestamp == "None" : 
+						if extprop_chatmsg_ft_index_timestamp == "None" :
 							print_log("\n\nchatname:%s " % (row_plus["chatname"]))
 							raw_input()
 							request = "\nAuthor:%s \n  Message:%s" % (row_plus["author"],row_plus["body_xml"])
 							print_green(request)
 							to_record = "\n" + request.encode('utf-8')
 							fct_writefile(to_record, output_display)
-						else: 
+						else:
 							print_log("\n\n[chatname]:%s \nDate:%s" % (row_plus["chatname"],datetime.datetime.fromtimestamp(int(extprop_chatmsg_ft_index_timestamp[0:10])).strftime('%Y-%m-%d %H:%M:%S')))
 							raw_input()
 							request = "\nAuthor:%s \n  Message:%s" % (row_plus["author"],row_plus["body_xml"])
-							print_green(request)	
+							print_green(request)
 							to_record="\n" + request.encode('utf-8')
 							fct_writefile(to_record, output_display)
-					else: 
+					else:
 						request = "Author:%s \n  Message:%s" % (row_plus["author"], row_plus["body_xml"])
 						print_green(request)
 						to_record = "\n" + request.encode('utf-8')
 						fct_writefile(to_record, output_display)
 
 					id_prec = row_plus["convo_id"]
-	except lite.Error, e:	    
-	    print_red("Error %s:" % e.args[0])	
+	except lite.Error, e:
+	    print_red("Error %s:" % e.args[0])
 	finally:
 	    if con:
 	        con.close()
@@ -1112,7 +1112,7 @@ def fct_exploit_ical():
 		file.close()
 
 		tab_results = []
-		
+
 		filtre = re.compile('^.+\ to\ (.+)\/(.+)$',re.IGNORECASE)
 		for i in range(len(lines_log_calendar)):
 			res = filtre.findall(lines_log_calendar[i])
@@ -1120,15 +1120,15 @@ def fct_exploit_ical():
 				path_file_db = one_line[0]
 				file_db = one_line[1].replace("\ "," ")
 				tab_results.append(file_db)
-		
+
 		db_ical_to_analyse = "null"
 		while db_ical_to_analyse == "null":
 			print_log("\nAvailable iCal files > ")
 			for j in range(len(tab_results)):
 				print_green(str(j) + ". " + tab_results[j])
-				
+
 			db_ical_to_analyse = raw_input("\nChoose iCal file (b to back) > ")
-			
+
 			if db_ical_to_analyse != "b":
 				try:
 					intORnot = int(db_ical_to_analyse)
@@ -1137,7 +1137,7 @@ def fct_exploit_ical():
 						db_ical_to_analyse = path_file_db + "/" + ical_name
 
 						var_analysis = "null"
-						while var_analysis == "null": 
+						while var_analysis == "null":
 							print_log  ("\nAnalysis of : " + db_ical_to_analyse)
 							print_green("========================================================================")
 
@@ -1146,13 +1146,13 @@ def fct_exploit_ical():
 							print_green("3: Display/Record Events and Reminders containing special keyword")
 							print_green("b: Back")
 							var_analysis = raw_input("Analysis to launch > ")
-							if var_analysis == "1": 
+							if var_analysis == "1":
 								fct_read_all_ical(db_ical_to_analyse)
 								var_analysis = "null"
-							elif var_analysis == "2": 
+							elif var_analysis == "2":
 								fct_read_pass_ical(db_ical_to_analyse)
 								var_analysis = "null"
-							elif var_analysis == "3": 
+							elif var_analysis == "3":
 								fct_read_special_ical(db_ical_to_analyse)
 								var_analysis = "null"
 							elif var_analysis == "b":
@@ -1168,7 +1168,7 @@ def fct_exploit_ical():
 					print_red("\nPlease to choose a valid iCal database\n")
 					db_ical_to_analyse = "null"
 
-	else: 
+	else:
 		print_log("No recording ...")
 	print_red("\n========================================================================")
 	print_red("                 ==== \Exploit iCal containing ====")
@@ -1215,17 +1215,17 @@ def fct_read_all_ical(db_ical_to_analyse):
 					fct_writefile(to_record, output_display)
 
 				counter = counter + 1
-				if counter == 5 and jump == 0: 
+				if counter == 5 and jump == 0:
 					res = raw_input("Press enter to continue (j to jump) > ")
 					counter = 0
 					if res == 'j':
 						jump = 1
-	except lite.Error, e:	    
+	except lite.Error, e:
 	    print_red("Error %s:" % e.args[0])
 	finally:
 	    if con:
 	        con.close()
-	
+
 	print_log("\nResults are stored into " + output_display + "\n")
 	raw_input("Press any key to continue...")
 
@@ -1241,7 +1241,7 @@ def fct_read_all_ical(db_ical_to_analyse):
 		output_display = name_dir_analysis + var_date_display + "_REMINDERS_ALL.txt"
 		print_log("\nResults will be stored into " + output_display + "\n")
 		raw_input("Press any key to continue...")
-		
+
 		fct_writefile("\n====================================\n[REMINDERS]\n====================================", output_display)
 
 		try:
@@ -1261,7 +1261,7 @@ def fct_read_all_ical(db_ical_to_analyse):
 					zcreationdate=os.popen("date -r " + zcreationdate[0:10] + " -v+31y").read().strip("\n")
 					zcreationdate = unicode(zcreationdate, "utf8")
 					zcompletddate=str(row["ZCOMPLETEDDATE"])
-					
+
 					if zstatus == "None":
 						request = "Title: %s \n  Status: %s \n  Creation date: %s \n" % (row["ZTITLE"],"NOT COMPLETED",zcreationdate)
 						print_green(request)
@@ -1276,17 +1276,17 @@ def fct_read_all_ical(db_ical_to_analyse):
 						fct_writefile(to_record, output_display)
 
 					counter = counter + 1
-					if counter == 5 and jump == 0: 
+					if counter == 5 and jump == 0:
 						res=raw_input("Press enter to continue (j to jump) > ")
 						counter = 0
 						if res == 'j':
 							jump = 1
-		except lite.Error, e:	    
+		except lite.Error, e:
 		    print_red("Error %s:" % e.args[0])
 		finally:
 		    if con:
 		        con.close()
-		
+
 		print_log("\nResults are stored into " + output_display + "\n")
 		raw_input("Press any key to continue...")
 
@@ -1295,13 +1295,13 @@ def fct_read_all_ical(db_ical_to_analyse):
 
 
 def fct_read_pass_ical(db_ical_to_analyse):
-	
+
 	file = open(db_keywords_pass,'r')
 	lines_keywords_pass = file.readlines()
 	file.close()
 
 	print_red("\n                 ====  Display EVENTS ====\n")
-	
+
 	#to record
 	var_date_display = time.strftime('%y%m%d-%Hh%M%S',time.localtime())
 	output_display = name_dir_analysis + var_date_display + "_EVENTS_PASS.txt"
@@ -1344,28 +1344,28 @@ def fct_read_pass_ical(db_ical_to_analyse):
 						fct_writefile(to_record, output_display)
 
 					counter = counter + 1
-					if counter == 5 and jump == 0 : 
+					if counter == 5 and jump == 0 :
 						res = raw_input("Press enter to continue (j to jump) > ")
 						counter = 0
 						if res == 'j':
 							jump = 1
-		except lite.Error, e:	    
+		except lite.Error, e:
 		    print_red("Error %s:" % e.args[0])
 		finally:
 		    if con:
 		        con.close()
-	
+
 	print_log("\nResults are stored into " + output_display + "\n")
 	raw_input("Press any key to continue...")
-	
+
 	print_red("\n                 ====  \\Display EVENTS ====")
-	
 
 
 
-	if "10.6" not in target_version: 
+
+	if "10.6" not in target_version:
 		print_red("\n\n                 ====  Display REMINDERS ====\n")
-		
+
 		#to record
 		var_date_display=time.strftime('%y%m%d-%Hh%M%S',time.localtime())
 		output_display=name_dir_analysis + var_date_display + "_REMINDERS_PASS.txt"
@@ -1382,7 +1382,7 @@ def fct_read_pass_ical(db_ical_to_analyse):
 					print_log("\n[Wanted Keyword] : " + lines_keywords_pass[j].strip("\n"))
 					fct_writefile("\n====================================\n[Wanted Keyword] : " + lines_keywords_pass[j].strip("\n") + "\n====================================", output_display)
 					raw_input()
-					#SELECT ZTITLE,ZCREATIONDATE,ZSTATUS,ZCOMPLETEDDATE,Z_ENT FROM ZICSELEMENT where Z_ENT=24 order by ZCREATIONDATE 
+					#SELECT ZTITLE,ZCREATIONDATE,ZSTATUS,ZCOMPLETEDDATE,Z_ENT FROM ZICSELEMENT where Z_ENT=24 order by ZCREATIONDATE
 					sql_request="SELECT ZTITLE,ZCREATIONDATE,ZSTATUS,ZCOMPLETEDDATE,Z_ENT FROM ZICSELEMENT where (Z_ENT=24 OR Z_ENT=32) And (ZNOTES LIKE '%" + lines_keywords_pass[j].strip('\n') + "%' OR ZTITLE LIKE '%" + lines_keywords_pass[j].strip('\n') + "%') ORDER BY ZCREATIONDATE DESC"
 					cur.execute(sql_request)
 					rows = cur.fetchall()
@@ -1394,7 +1394,7 @@ def fct_read_pass_ical(db_ical_to_analyse):
 						zcreationdate=os.popen("date -r " + zcreationdate[0:10] + " -v+31y").read().strip("\n")
 						zcreationdate = unicode(zcreationdate, "utf8")
 						zcompletddate=str(row["ZCOMPLETEDDATE"])
-						
+
 						if zstatus == "None":
 							request = "Title: %s \n  Status: %s \n  Creation date: %s \n" % (row["ZTITLE"],"NOT COMPLETED",zcreationdate)
 							print_green(request)
@@ -1410,20 +1410,20 @@ def fct_read_pass_ical(db_ical_to_analyse):
 							fct_writefile(to_record, output_display)
 
 						counter = counter + 1
-						if counter == 5 and jump == 0 : 
+						if counter == 5 and jump == 0 :
 							res=raw_input("Press enter to continue (j to jump) > ")
 							counter = 0
 							if res == 'j':
 								jump = 1
-			except lite.Error, e:	    
+			except lite.Error, e:
 			    print_red("Error %s:" % e.args[0])
 			finally:
 			    if con:
 			        con.close()
-		
+
 		print_log("\nResults are stored into " + output_display + "\n")
 		raw_input("Press any key to continue...")
-		
+
 		print_red("\n                 ====  \\Display REMINDERS ====")
 
 
@@ -1431,9 +1431,9 @@ def fct_read_pass_ical(db_ical_to_analyse):
 
 def fct_read_special_ical(db_ical_to_analyse):
 	keyword = raw_input("Enter your keyword > ")
-	
+
 	print_red("\n                 ====  Display EVENTS ====\n")
-	
+
 	#to record
 	var_date_display = time.strftime('%y%m%d-%Hh%M%S',time.localtime())
 	output_display = name_dir_analysis + var_date_display + "_EVENTS_KEYWORD-" + keyword + ".txt"
@@ -1458,7 +1458,7 @@ def fct_read_special_ical(db_ical_to_analyse):
 			jump = 0
 			for row in rows:
 				zstartdate = str(row["ZSTARTDATE"])
-				if zstartdate == "None": 
+				if zstartdate == "None":
 					print_green("Title: %s \n  Localisation: %s \n  Note: %s \n  Organizer: %s \n" % (row["ZTITLE"],row["ZLOCATION"],row["ZNOTES"],row["ZORGANIZERCOMMONNAME"]))
 					to_record = "\nTitle: %s \n  Localisation: %s \n  Note: %s \n  Organizer: %s \n" % (row["ZTITLE"],row["ZLOCATION"],row["ZNOTES"],row["ZORGANIZERCOMMONNAME"])
 					to_record = to_record.encode('utf-8')
@@ -1472,24 +1472,24 @@ def fct_read_special_ical(db_ical_to_analyse):
 					fct_writefile(to_record, output_display)
 
 				counter = counter + 1
-				if counter == 5 and jump == 0: 
+				if counter == 5 and jump == 0:
 					res=raw_input("Press enter to continue (j to jump) > ")
 					counter = 0
 					if res == 'j':
 						jump=1
-	except lite.Error, e:	    
-	    print_red("Error %s:" % e.args[0])	
+	except lite.Error, e:
+	    print_red("Error %s:" % e.args[0])
 	finally:
 	    if con:
 	        con.close()
-	
+
 	print_log("\nResults are stored into " + output_display + "\n")
 	raw_input("Press any key to continue...")
 
 	print_red("\n                 ====  \\Display EVENTS ====")
 
 
-	if "10.6" not in target_version : 
+	if "10.6" not in target_version :
 		print_red("\n\n                 ====  Display REMINDERS ====\n")
 		#to record
 		var_date_display = time.strftime('%y%m%d-%Hh%M%S',time.localtime())
@@ -1498,7 +1498,7 @@ def fct_read_special_ical(db_ical_to_analyse):
 		raw_input("Press any key to continue...")
 
 		fct_writefile("\n====================================\n[Wanted Keyword] : " + keyword + "\n====================================", output_display)
-		
+
 		try:
 		    con = None
 		    con = lite.connect(db_ical_to_analyse)
@@ -1516,8 +1516,8 @@ def fct_read_special_ical(db_ical_to_analyse):
 					zcreationdate = os.popen("date -r " + zcreationdate[0:10] + " -v+31y").read().strip("\n")
 					zcreationdate = unicode(zcreationdate, "utf8")
 					zcompletddate = str(row["ZCOMPLETEDDATE"])
-					
-					if zstatus == "None" : 
+
+					if zstatus == "None" :
 						print_green("Title: %s \n  Status: %s \n  Creation date: %s \n" % (row["ZTITLE"],"NOT COMPLETED",zcreationdate))
 						to_record = "\nTitle: %s \n  Status: %s \n  Creation date: %s \n" % (row["ZTITLE"],"NOT COMPLETED",zcreationdate)
 						to_record = to_record.encode('utf-8')
@@ -1529,22 +1529,22 @@ def fct_read_special_ical(db_ical_to_analyse):
 						to_record = "\nTitle: %s \n  Status: %s \n  Creation date: %s \n  Completed date: %s \n" % (row["ZTITLE"],zstatus,zcreationdate,zcompletddate)
 						to_record = to_record.encode('utf-8')
 						fct_writefile(to_record, output_display)
-					
+
 					counter = counter + 1
-					if counter == 5 and jump == 0: 
+					if counter == 5 and jump == 0:
 						res = raw_input("Press enter to continue (j to jump) > ")
 						counter = 0
 						if res == 'j':
 							jump=1
-		except lite.Error, e:	    
-		    print_red("Error %s:" % e.args[0])	
+		except lite.Error, e:
+		    print_red("Error %s:" % e.args[0])
 		finally:
 		    if con:
 		        con.close()
-		
+
 		print_log("\nResults are stored into " + output_display + "\n")
 		raw_input("Press any key to continue...")
-		
+
 		print_red("\n                 ====  \\Display REMINDERS ====")
 
 
@@ -1557,16 +1557,16 @@ def fct_exploit_emails():
 	print_red("                 ==== Exploit Email messages ====")
 	print_red("========================================================================")
 
-	if "10.6" in target_version: 
+	if "10.6" in target_version:
 		print_log("Snow Leopard is not supported ... :()")
-	else: 
+	else:
 		if os.path.exists(file_log_email_spot):
 			file=open(file_log_email_spot,'r')
 			lines_log_email_spot=file.readlines()
 			file.close()
 
 			tab_results = []
-			
+
 			filtre=re.compile('^.+\ to\ (.+)\/(.+)$',re.IGNORECASE)
 			for i in range(len(lines_log_email_spot)):
 				res=filtre.findall(lines_log_email_spot[i])
@@ -1580,19 +1580,19 @@ def fct_exploit_emails():
 				print_log("\nAvailable Email Database files > ")
 				for j in range(len(tab_results)):
 					print_green(str(j) + ". " + tab_results[j])
-					
+
 				db_email_to_analyse = raw_input("\nChoose a Email database (b to back) > ")
-				
+
 				if db_email_to_analyse != "b":
-				
+
 					try:
 						intORnot = int(db_email_to_analyse)
 						if int(db_email_to_analyse) < len(tab_results):
 							email_name = tab_results[int(db_email_to_analyse)]
 							db_email_to_analyse = path_file_db + "/" + email_name
-							 
+
 							var_analysis = "null"
-							while var_analysis == "null": 
+							while var_analysis == "null":
 								print_log  ("\nAnalysis of : " + db_email_to_analyse)
 								print_green("========================================================================")
 
@@ -1603,16 +1603,16 @@ def fct_exploit_emails():
 								print_green("b: Back")
 								var_analysis = raw_input("Analysis to launch > ")
 
-								if var_analysis == "1": 
+								if var_analysis == "1":
 									fct_read_all_email(db_email_to_analyse)
 									var_analysis = "null"
-								elif var_analysis == "2": 
+								elif var_analysis == "2":
 									fct_read_pass_email(db_email_to_analyse)
 									var_analysis = "null"
-								elif var_analysis == "3": 
+								elif var_analysis == "3":
 									fct_read_special_email(db_email_to_analyse)
 									var_analysis = "null"
-								elif var_analysis == "4": 
+								elif var_analysis == "4":
 									fct_search_emlx()
 									var_analysis = "null"
 								elif var_analysis == "b":
@@ -1620,7 +1620,7 @@ def fct_exploit_emails():
 								else:
 									var_analysis = "null"
 									print_red("\nPlease to choose a valid option\n")
-						
+
 						else:
 							print_red("\nPlease to choose a valid Email database\n")
 							db_email_to_analyse = "null"
@@ -1648,7 +1648,7 @@ def fct_read_all_email(db_email_to_analyse):
 			con.row_factory = lite.Row
 			cur = con.cursor()
 			#SELECT date_created,conversation_id,addresses.rowid,addresses.address,subjects.rowid,subjects.subject,messages.subject,snippet,mailbox,sender,mailboxes.url FROM messages, mailboxes, subjects, addresses WHERE (messages.mailbox=mailboxes.rowid and messages.subject=subjects.rowid and sender=addresses.rowid and snippet LIKE '%mot de passe%');
-			sql_request = "SELECT date_created,conversation_id,addresses.address,subjects.subject,messages.rowid,messages.subject,snippet,mailbox,sender,mailboxes.url FROM messages, mailboxes, subjects, addresses WHERE (messages.mailbox=mailboxes.rowid) and (messages.subject=subjects.rowid) and (sender=addresses.rowid) ORDER BY conversation_id DESC"						
+			sql_request = "SELECT date_created,conversation_id,addresses.address,subjects.subject,messages.rowid,messages.subject,snippet,mailbox,sender,mailboxes.url FROM messages, mailboxes, subjects, addresses WHERE (messages.mailbox=mailboxes.rowid) and (messages.subject=subjects.rowid) and (sender=addresses.rowid) ORDER BY conversation_id DESC"
 			cur.execute(sql_request)
 			rows = cur.fetchall()
 			counter = 0
@@ -1661,19 +1661,19 @@ def fct_read_all_email(db_email_to_analyse):
 					print_green(request)
 					to_record = "\n" + request.encode('utf-8')
 					fct_writefile(to_record, output_display)
-				else : 
+				else :
 					request = "Subject:%s \n  Date:%s \n  Sender:%s \n  Message:%s  \n  Emlx ID:%s \n  Mbox:%s \n" % (row["subject"],datetime.datetime.fromtimestamp(int(date_created[0:10])).strftime('%Y-%m-%d %H:%M:%S'),row["address"],row["snippet"],row["rowid"],row["url"])
 					print_green(request)
 					to_record = "\n" + request.encode('utf-8')
 					fct_writefile(to_record, output_display)
 
 				counter = counter + 1
-				if counter == 5 and jump == 0 : 
+				if counter == 5 and jump == 0 :
 					res = raw_input("Press enter to continue (j to jump) > ")
 					counter = 0
 					if res == 'j':
 						jump = 1
-	except lite.Error, e:	    
+	except lite.Error, e:
 	    print_red("Error %s:" % e.args[0])
 	finally:
 	    if con:
@@ -1706,7 +1706,7 @@ def fct_read_pass_email(db_email_to_analyse):
 				fct_writefile("====================================\n[Wanted Keyword] : " + lines_keywords_pass[j].strip("\n") + "\n====================================", output_display)
 				raw_input()
 				#SELECT date_created,conversation_id,addresses.rowid,addresses.address,subjects.rowid,subjects.subject,messages.subject,snippet,mailbox,sender,mailboxes.url FROM messages, mailboxes, subjects, addresses WHERE (messages.mailbox=mailboxes.rowid and messages.subject=subjects.rowid and sender=addresses.rowid and snippet LIKE '%mot de passe%');
-				sql_request = "SELECT date_created,conversation_id,addresses.address,subjects.subject,messages.rowid,messages.subject,snippet,mailbox,sender,mailboxes.url FROM messages, mailboxes, subjects, addresses WHERE (messages.mailbox=mailboxes.rowid) and (messages.subject=subjects.rowid) and (sender=addresses.rowid ) and (snippet LIKE '%" + lines_keywords_pass[j].strip('\n') + "%' OR subjects.subject LIKE '%" + lines_keywords_pass[j].strip('\n') + "%') ORDER BY conversation_id DESC"						
+				sql_request = "SELECT date_created,conversation_id,addresses.address,subjects.subject,messages.rowid,messages.subject,snippet,mailbox,sender,mailboxes.url FROM messages, mailboxes, subjects, addresses WHERE (messages.mailbox=mailboxes.rowid) and (messages.subject=subjects.rowid) and (sender=addresses.rowid ) and (snippet LIKE '%" + lines_keywords_pass[j].strip('\n') + "%' OR subjects.subject LIKE '%" + lines_keywords_pass[j].strip('\n') + "%') ORDER BY conversation_id DESC"
 				cur.execute(sql_request)
 				rows = cur.fetchall()
 				counter = 0
@@ -1714,25 +1714,25 @@ def fct_read_pass_email(db_email_to_analyse):
 
 				for row in rows:
 					date_created = str(row["date_created"])
-					if date_created == "None" : 
+					if date_created == "None" :
 						request = "Subject:%s \n  Sender:%s \n  Message:%s \n  Emlx ID:%s \n  Mbox:%s \n" % (row["subject"],row["address"],row["snippet"],row["rowid"],row["url"])
 						print_green(request)
 						to_record = "\n" + request.encode('utf-8')
 						fct_writefile(to_record, output_display)
-					else : 
+					else :
 						request = "Subject:%s \n  Date:%s \n  Sender:%s \n  Message:%s  \n  Emlx ID:%s \n  Mbox:%s \n" % (row["subject"],datetime.datetime.fromtimestamp(int(date_created[0:10])).strftime('%Y-%m-%d %H:%M:%S'),row["address"],row["snippet"],row["rowid"],row["url"])
 						print_green(request)
 						to_record = "\n" + request.encode('utf-8')
 						fct_writefile(to_record, output_display)
 
 					counter = counter + 1
-					if counter == 5 and jump == 0 : 
+					if counter == 5 and jump == 0 :
 						res=raw_input("Press enter to continue (j to jump) > ")
 						counter = 0
 						if res == 'j':
 							jump = 1
-		except lite.Error, e:	    
-		    print("Error %s:" % e.args[0])	
+		except lite.Error, e:
+		    print("Error %s:" % e.args[0])
 		finally:
 		    if con:
 		        con.close()
@@ -1742,7 +1742,7 @@ def fct_read_pass_email(db_email_to_analyse):
 
 
 def fct_read_special_email(db_email_to_analyse):
-	
+
 	keyword = raw_input("Enter your keyword > ")
 
 	#to record
@@ -1759,7 +1759,7 @@ def fct_read_special_email(db_email_to_analyse):
 			cur = con.cursor()
 			fct_writefile("====================================\n[Wanted Keyword] : " + keyword + "\n====================================", output_display)
 			#SELECT date_created,conversation_id,addresses.rowid,addresses.address,subjects.rowid,subjects.subject,messages.subject,snippet,mailbox,sender,mailboxes.url FROM messages, mailboxes, subjects, addresses WHERE (messages.mailbox=mailboxes.rowid and messages.subject=subjects.rowid and sender=addresses.rowid and snippet LIKE '%mot de passe%');
-			sql_request = "SELECT date_created,conversation_id,addresses.address,subjects.subject,messages.rowid,messages.subject,snippet,mailbox,sender,mailboxes.url FROM messages, mailboxes, subjects, addresses WHERE (messages.mailbox=mailboxes.rowid) and (messages.subject=subjects.rowid) and (sender=addresses.rowid ) and (snippet LIKE '%" + keyword + "%' OR subjects.subject LIKE '%" + keyword + "%' OR addresses.address LIKE '%" + keyword + "%') ORDER BY conversation_id DESC"						
+			sql_request = "SELECT date_created,conversation_id,addresses.address,subjects.subject,messages.rowid,messages.subject,snippet,mailbox,sender,mailboxes.url FROM messages, mailboxes, subjects, addresses WHERE (messages.mailbox=mailboxes.rowid) and (messages.subject=subjects.rowid) and (sender=addresses.rowid ) and (snippet LIKE '%" + keyword + "%' OR subjects.subject LIKE '%" + keyword + "%' OR addresses.address LIKE '%" + keyword + "%') ORDER BY conversation_id DESC"
 			cur.execute(sql_request)
 			rows = cur.fetchall()
 			counter = 0
@@ -1768,25 +1768,25 @@ def fct_read_special_email(db_email_to_analyse):
 			for row in rows:
 				#print row.keys()
 				date_created = str(row["date_created"])
-				if date_created == "None" : 
+				if date_created == "None" :
 					request = "Subject:%s \n  Sender:%s \n  Message:%s \n  Emlx ID:%s \n  Mbox:%s \n" % (row["subject"],row["address"],row["snippet"],row["rowid"],row["url"])
 					print_green(request)
 					to_record = "\n" + request.encode('utf-8')
 					fct_writefile(to_record, output_display)
-				else : 
+				else :
 					request = "Subject:%s \n  Date:%s \n  Sender:%s \n  Message:%s  \n  Emlx ID:%s \n  Mbox:%s \n" % (row["subject"],datetime.datetime.fromtimestamp(int(date_created[0:10])).strftime('%Y-%m-%d %H:%M:%S'),row["address"],row["snippet"],row["rowid"],row["url"])
 					print_green(request)
 					to_record = "\n" + request.encode('utf-8')
 					fct_writefile(to_record, output_display)
 
 				counter = counter + 1
-				if counter == 5 and jump == 0 : 
+				if counter == 5 and jump == 0 :
 					res=raw_input("Press enter to continue (j to jump) > ")
 					counter = 0
 					if res == 'j':
 						jump = 1
-	except lite.Error, e:	    
-	    print_red("Error %s:" % e.args[0])	
+	except lite.Error, e:
+	    print_red("Error %s:" % e.args[0])
 	finally:
 	    if con:
 	        con.close()
@@ -1800,7 +1800,7 @@ def fct_search_emlx():
 
 	if os.path.isfile(file_log_email) :
 		print_log("Available Mail Boxes > ")
-		
+
 		file=open(file_log_email,'r')
 		lines_all = file.readlines()
 		file.close()
@@ -1825,17 +1825,17 @@ def fct_search_emlx():
 		while selected_mbox != "." :
 			selected_mbox = raw_input("> ")
 			try:
-				if selected_mbox != "." and selected_mbox != "" and int(selected_mbox) < len(tab_mbox): 
+				if selected_mbox != "." and selected_mbox != "" and int(selected_mbox) < len(tab_mbox):
 					empty_box = "0"
 					selected_mbox_tab.append(selected_mbox.strip())
 			except ValueError:
 				print_red("\nPlease to choose a valid Mail Box\n")
 
-		if empty_box == "1": 
+		if empty_box == "1":
 			print_log("No selected Mail Box. ")
 
 		emlx_to_find = "null"
-		
+
 		while emlx_to_find != "b.emlx":
 			emlx_to_find=raw_input("\nEnter the Emlx ID to search (b to back) > ")
 			emlx_to_find=emlx_to_find + ".emlx"
@@ -1876,9 +1876,9 @@ def fct_search_ram() :
 	print_red("                   ==== Exploit Ram dump ====")
 	print_red("========================================================================")
 	list_functions_RAM=["Search Apple secrets","RAM_MacOSx_Cred-0.1.py", "Search Web secrets (signatures can be outdated)", "RAM_Web_Cred-0.1.py"]
-	if os.path.isfile(file_dump_RAM) or os.path.isfile(file_str_RAM) : 
+	if os.path.isfile(file_dump_RAM) or os.path.isfile(file_str_RAM) :
 		print_log("RAM dump has been made :)")
-		
+
 		if os.path.isfile(file_str_RAM) :
 			print_log("STRINGS dump has been made :)")
 			print_green("========================================================================")
@@ -1890,11 +1890,11 @@ def fct_search_ram() :
 					i = 2 * i
 					print_green(str(i/2) + ". " + list_functions_RAM[i])
 				id_next = len(list_functions_RAM)/2
-			
+
 				print_green(str(id_next)	 + ". Are you lucky and find Web passwords ? (can take a long time)")
 				id_function_RAM=raw_input("\nChoose a function (b to back) > ")
 				print_log("Note : you can add your own keyword into " + db_web_pass)
-				
+
 				if id_function_RAM != "b":
 					try:
 						intORnot=int(id_function_RAM)
@@ -1921,38 +1921,38 @@ def fct_search_ram() :
 								fct_writefile(res_find_pass, password_web)
 								print_log("Results are stored into " + password_web)
 							id_function_RAM = "null"
-					
-						elif int(id_function_RAM) > 2: 
+
+						elif int(id_function_RAM) > 2:
 							id_function_RAM = "null"
 							print_red("\nPlease to choose a valid option\n")
 
 						else:
 							name_function_RAM = list_functions_RAM[(int(id_function_RAM))*2]
 							name_software = list_functions_RAM[(int(id_function_RAM))*2 +1]
-							
+
 							print_green("========================================================================")
 							print_log("[" + name_function_RAM + "] with " + name_software)
 							os.system(dir_tools + name_software + " " + file_str_RAM)
 							print_log("[\\" + name_function_RAM + "] with " + name_software)
 							id_function_RAM = "null"
-					
+
 					except ValueError:
 						print_red("\nPlease to choose a valid option \n")
 						id_function_RAM = "null"
-		else: 
+		else:
 			print_log("No STRINGS dump ...")
 			print_log("Be patient, creation of STRINGS dump from RAW dump ...")
 			os.system('cat ' + file_dump_RAM + '| strings > ' + file_str_RAM)
 			print_log("Strings dump is stored into " + file_str_RAM)
 			print_log("Please to re-launch Option <Exploit RAM memory Dump> to identify secrets ...:)")
-	
+
 	else:
 		print_log("\nNo RAM image has been made :(")
 
 	print_red("\n========================================================================")
 	print_red("                   ==== \\Exploit Ram Dump ====")
 	print_red("========================================================================")
-	
+
 
 
 ####################################################################################################################################
@@ -1978,7 +1978,7 @@ def fct_display_password(keychain_name,file_keychain_decrypted):
 			j = 0
 		elif "data:" in lines_keychain[i]:
 			j = 1
-		else : 
+		else :
 			j = 0
 			filtre = re.compile('0x00000007\ \<blob\>\=\"(.+)\"',re.IGNORECASE)
 			res = filtre.findall(lines_keychain[i])
@@ -1999,15 +1999,15 @@ def fct_display_password(keychain_name,file_keychain_decrypted):
 def fct_unlock_keychain(dir_dump_keychain,keychain_name):
 	keychain_to_analyse = dir_dump_keychain + keychain_name
 	keychain_pass=raw_input("Enter the password (b to back) > ").strip("\n")
-	
-	if keychain_pass != 'b': 
+
+	if keychain_pass != 'b':
 		#lock keychain if open
 		os.system('security lock-keychain "' + current_path + '/' + keychain_to_analyse + '"')
 		print('security unlock-keychain -p ' + keychain_pass + ' "' + current_path + '/' + keychain_to_analyse + '"')
 		res_unlock_keychain=commands.getoutput('security unlock-keychain -p ' + keychain_pass + ' ' + current_path + '/' + keychain_to_analyse)
 		#res_unlock_keychain=os.popen('security unlock-keychain -p ' + keychain_pass + ' ' + current_path + '/' + keychain_to_analyse).read()
 		print res_unlock_keychain
-		
+
 		#valid password
 		if res_unlock_keychain == "":
 			data_keychain=os.popen('security dump-keychain -d "' + current_path + '/' + keychain_to_analyse + '"').read()
@@ -2024,16 +2024,16 @@ def fct_unlock_keychain(dir_dump_keychain,keychain_name):
 			for i in range(len(lines_keychain)):
 				lines_keychain[i] = lines_keychain[i].strip("\n")
 				print_green (lines_keychain[i])
-			print_log("Decrypted keychain is stored into " + file_keychain_decrypted) 
+			print_log("Decrypted keychain is stored into " + file_keychain_decrypted)
 			print_green("========================================================================\n")
-			
-			
+
+
 		# no valid password
 		else:
 			print_log("The entered password is not correct ...")
 			#fct_unlock_keychain(dir_dump_keychain,keychain_name)
 			return("password_false")
-	
+
 	#b to back
 	else:
 		return("b")
@@ -2044,7 +2044,7 @@ def fct_unlock_keychain(dir_dump_keychain,keychain_name):
 def fct_brute_pass_keychain(dir_dump_keychain,keychain_name,all_passwords):
 	check_found_pass = 0
 	start_time = time.clock()
-	
+
 	if check_found_pass != 1:
 		for i in range(len(all_passwords)):
 			keychain_to_analyse = dir_dump_keychain + keychain_name
@@ -2063,10 +2063,10 @@ def fct_brute_pass_keychain(dir_dump_keychain,keychain_name,all_passwords):
 				file_crackedhashes = name_dir_analysis + date_display + "_PASSWORD_KEYCHAIN.txt"
 				fct_writefile("\nFound password : " +  pass_found + " for Keychain " + keychain_name,file_crackedhashes)
 				fct_add_pass_database(pass_found)
-				break						
+				break
 
 	# no found password with bruteforce
-	if check_found_pass == 0: 
+	if check_found_pass == 0:
 		print_green("\nNo Found password …\n")
 		duration = time.clock() - start_time
 		duration = duration*100
@@ -2092,7 +2092,7 @@ def fct_keychain_with_john(dir_dump_keychain,keychain_name):
 		var_john=raw_input("\nBruteforce attack to launch (b to back) > ")
 
 		if var_john != "b":
-			if var_john == "1": 
+			if var_john == "1":
 				print_log("Be patient, attempt to identity keychain password with special list <" + file_wordlist_for_jtr +  "> ... (ctrl+c to cancel)")
 				os.system(dir_path_jtr + "/john " + backup_hash_keychain +  " --wordlist=" + file_wordlist_for_jtr)
 				print_green("========================================================================")
@@ -2110,7 +2110,7 @@ def fct_keychain_with_john(dir_dump_keychain,keychain_name):
 				fct_add_pass_database(var_all_passwords)
 				var_john = "null"
 
-			elif var_john == "2": 
+			elif var_john == "2":
 				date_display = time.strftime('%y%m%d-%Hh%M%S',time.localtime())
 				file_backup_pass = name_dir_analysis + date_display + "_ALL_FOUND_PASSWORDS.txt"
 				found_password = fct_generate_password(1)
@@ -2124,7 +2124,7 @@ def fct_keychain_with_john(dir_dump_keychain,keychain_name):
 					print_log("The identified keychain:password is the following > ")
 					var_crackedhashes = os.popen(dir_path_jtr + "/john --show " + backup_hash_keychain).read().strip("\n")
 					print_green(var_crackedhashes)
-					
+
 					date_display = time.strftime('%y%m%d-%Hh%M%S',time.localtime())
 					file_crackedhashes = name_dir_analysis + date_display + "_PASSWORD_KEYCHAIN.txt"
 					fct_writefile("\n" + var_crackedhashes,file_crackedhashes)
@@ -2133,15 +2133,15 @@ def fct_keychain_with_john(dir_dump_keychain,keychain_name):
 					var_all_passwords=os.popen("cat " + file_crackedhashes + " | grep -v cracked | cut -d ':' -f 2 | sort -u").read()
 					fct_add_pass_database(var_all_passwords)
 					var_john = "null"
-			
-			elif var_john == "3": 
+
+			elif var_john == "3":
 				print_log("\nBe patient, attempt to identity keychain password with default mode ... (ctrl+c to cancel)")
 				os.system(dir_path_jtr + "/john " + backup_hash_keychain)
 				print_green("========================================================================")
 				print_log("The identified keychain:password is the followings > ")
 				var_crackedhashes = os.popen(dir_path_jtr + "/john --show " + backup_hash_keychain).read().strip("\n")
 				print_green(var_crackedhashes)
-				
+
 				date_display = time.strftime('%y%m%d-%Hh%M%S',time.localtime())
 				file_crackedhashes = name_dir_analysis + date_display + "_PASSWORD_KEYCHAIN.txt"
 				fct_writefile("\n" + var_crackedhashes,file_crackedhashes)
@@ -2151,13 +2151,13 @@ def fct_keychain_with_john(dir_dump_keychain,keychain_name):
 				fct_add_pass_database(var_all_passwords)
 				var_john = "null"
 
-			elif var_john == "4": 
+			elif var_john == "4":
 				date_display = time.strftime('%y%m%d-%Hh%M%S',time.localtime())
 				file_backup_pass = name_dir_analysis + date_display + "_ALL_FOUND_PASSWORDS.txt"
 				found_password = fct_generate_password(1)
 				for index_tab in range(len(found_password)):
 					fct_writefile("\n" + found_password[index_tab].strip("\n"),file_backup_pass)
-				
+
 				if os.path.isfile(file_backup_pass):
 					print_log("\nBe patient, attempt to identity keychain password with rules 'single' and wordlist " + file_backup_pass + "  ... (ctrl+c to cancel)")
 					os.system(dir_path_jtr + "/john --rules:single --wordlist="  + file_backup_pass + " " + backup_hash_keychain)
@@ -2165,7 +2165,7 @@ def fct_keychain_with_john(dir_dump_keychain,keychain_name):
 					print_log("The identified keychain:password is the following > ")
 					var_crackedhashes = os.popen(dir_path_jtr + "/john --show " + backup_hash_keychain).read().strip("\n")
 					print_green(var_crackedhashes)
-				
+
 					date_display = time.strftime('%y%m%d-%Hh%M%S',time.localtime())
 					file_crackedhashes = name_dir_analysis + date_display + "_PASSWORD_KEYCHAIN.txt"
 					fct_writefile("\n" + var_crackedhashes,file_crackedhashes)
@@ -2175,7 +2175,7 @@ def fct_keychain_with_john(dir_dump_keychain,keychain_name):
 					fct_add_pass_database(var_all_passwords)
 					var_john = "null"
 
-			else: 
+			else:
 				print_red("\nPlease to choose a valid option")
 				var_john = "null"
 
@@ -2187,7 +2187,7 @@ def fct_exploit_keychain():
 	print_red("\n\n========================================================================")
 	print_red("                   ==== Exploit Keychain files ====")
 	print_red("========================================================================")
-	
+
 	if os.path.exists(file_log_keychain):
 
 		file = open(file_log_keychain,'r')
@@ -2195,7 +2195,7 @@ def fct_exploit_keychain():
 		file.close()
 
 		tab_results = []
-		
+
 		filtre = re.compile('^.+\ to\ (.+)\/(.+\.keychain)$',re.IGNORECASE)
 
 		for i in range(len(lines_log_keychain)):
@@ -2207,13 +2207,13 @@ def fct_exploit_keychain():
 				tab_results.append(file_db)
 
 		keychain_to_analyse = "null"
-		while keychain_to_analyse == "null":	
+		while keychain_to_analyse == "null":
 			print_log("\nAvailable Keychain files > ")
 			for j in range(len(tab_results)):print_green(str(j) + ". " + tab_results[j])
 
 			keychain_to_analyse = raw_input("\nChoose a keychain (b to back) > ")
-			
-			if keychain_to_analyse != "b" : 
+
+			if keychain_to_analyse != "b" :
 				try:
 					intORnot = int(keychain_to_analyse)
 					if int(keychain_to_analyse) < len(tab_results):
@@ -2228,7 +2228,7 @@ def fct_exploit_keychain():
 							print_green("\n1: Open Keychain with the password and display content")
 							print_green("2: Attempt to identity Keychain password with John The Ripper")
 							print_green("3: Attempt to identity Keychain password with homemade Algorithm")
-							
+
 							var_keychain_action = raw_input("\nAnalysis to launch (b to back) > ")
 
 							if var_keychain_action != "b":
@@ -2239,7 +2239,7 @@ def fct_exploit_keychain():
 										file_keychain_decrypted=fct_unlock_keychain(dir_dump_keychain,keychain_name)
 									if file_keychain_decrypted != "b":
 										var_display_pass = raw_input("Do you want to backup found password ? y/[n] > ")
-										if var_display_pass == "y" : 
+										if var_display_pass == "y" :
 											fct_display_password(keychain_name,file_keychain_decrypted)
 									var_keychain_action = "null"
 								#with john
@@ -2266,13 +2266,13 @@ def fct_exploit_keychain():
 					print_red("\nPlease to choose a valid Keychain file\n")
 					keychain_to_analyse = "null"
 
-	else: 
+	else:
 		print_log("No recording ...")
-	
+
 	print_red("\n========================================================================")
 	print_red("                   ==== \\Exploit Keychain files ====")
 	print_red("========================================================================\n")
-	
+
 
 
 ####################################################################################################################################
@@ -2282,7 +2282,7 @@ def fct_exploit_password():
 	print_red("\n\n========================================================================")
 	print_red("                ==== Crack Hashes passwords ====")
 	print_red("========================================================================")
-	
+
 	if os.path.exists(file_allusershashes):
 
 		print_log("Hashes passwords to crack [" + file_allusershashes + "] : \n")
@@ -2292,7 +2292,7 @@ def fct_exploit_password():
 
 		for i in range(len(lines_hashes)) :
 			print_log(lines_hashes[i].strip("\n"))
-		
+
 		var_john = "null"
 		while var_john == "null":
 			print_green("\n1: Launch John The Ripper with special list(" + file_wordlist_for_jtr + ")")
@@ -2302,7 +2302,7 @@ def fct_exploit_password():
 			var_john=raw_input("\nBruteforce attack to launch (b to back) > ")
 
 			if var_john != "b":
-				if var_john == "1": 
+				if var_john == "1":
 					print_log("Be patient, attempt to crack the passwords with special list <" + file_wordlist_for_jtr +  "> ... (ctrl+c to cancel)")
 					os.system(dir_path_jtr + "/john " + file_allusershashes +  " --wordlist=" + file_wordlist_for_jtr)
 					print_green("========================================================================")
@@ -2335,7 +2335,7 @@ def fct_exploit_password():
 						print_log("The identified usernames:passwords are the followings > ")
 						var_crackedhashes = os.popen(dir_path_jtr + "/john --show " + file_allusershashes).read().strip("\n")
 						print_green(var_crackedhashes)
-					
+
 						date_display = time.strftime('%y%m%d-%Hh%M%S',time.localtime())
 						file_crackedhashes = name_dir_analysis + date_display + "_PASSWORD_USERS.txt"
 						fct_writefile("\n" + var_crackedhashes,file_crackedhashes)
@@ -2344,15 +2344,15 @@ def fct_exploit_password():
 						var_all_passwords=os.popen("cat " + file_crackedhashes + " | grep -v cracked | cut -d ':' -f 2 | sort -u").read()
 						fct_add_pass_database(var_all_passwords)
 						var_john = "null"
-				
-				elif var_john == "3": 
+
+				elif var_john == "3":
 					print_log("Be patient, attempt to crack the passwords with default mode ... (ctrl+c to cancel)")
 					os.system(dir_path_jtr + "/john " + file_allusershashes)
 					print_green("========================================================================")
 					print_log("The identified usernames:passwords are the followings > ")
 					var_crackedhashes = os.popen(dir_path_jtr + "/john --show " + file_allusershashes).read().strip("\n")
 					print_green(var_crackedhashes)
-					
+
 					date_display = time.strftime('%y%m%d-%Hh%M%S',time.localtime())
 					file_crackedhashes = name_dir_analysis + date_display + "_PASSWORD_USERS.txt"
 					fct_writefile("\n" + var_crackedhashes,file_crackedhashes)
@@ -2362,13 +2362,13 @@ def fct_exploit_password():
 					fct_add_pass_database(var_all_passwords)
 					var_john = "null"
 
-				elif var_john == "4": 
+				elif var_john == "4":
 					date_display = time.strftime('%y%m%d-%Hh%M%S',time.localtime())
 					file_backup_pass = name_dir_analysis + date_display + "_ALL_FOUND_PASSWORDS.txt"
 					found_password = fct_generate_password(1)
 					for index_tab in range(len(found_password)):
 						fct_writefile("\n" + found_password[index_tab].strip("\n"),file_backup_pass)
-					
+
 					if os.path.isfile(file_backup_pass):
 						print_log("\nBe patient, attempt to crack the passwords with rules 'single' and wordlist " + file_backup_pass + "  ... (ctrl+c to cancel)")
 						os.system(dir_path_jtr + "/john --rules:single --wordlist="  + file_backup_pass + " " + file_allusershashes)
@@ -2376,7 +2376,7 @@ def fct_exploit_password():
 						print_log("The identified username:passwords are the followings > ")
 						var_crackedhashes = os.popen(dir_path_jtr + "/john --show " + file_allusershashes).read().strip("\n")
 						print_green(var_crackedhashes)
-					
+
 						date_display = time.strftime('%y%m%d-%Hh%M%S',time.localtime())
 						file_crackedhashes = name_dir_analysis + date_display + "_PASSWORDS_USERS.txt"
 						fct_writefile("\n" + var_crackedhashes,file_crackedhashes)
@@ -2386,7 +2386,7 @@ def fct_exploit_password():
 						fct_add_pass_database(var_all_passwords)
 						var_john = "null"
 
-				else: 
+				else:
 					print_red("\nPlease to choose a valid option")
 					var_john = "null"
 
@@ -2426,7 +2426,7 @@ def fct_read_ios_sms(base_db,version_ios):
 				cur = con.cursor()
 
 				if "6." in version_ios:
-					sql_request = "SELECT message.date,message.is_from_me,message.handle_id,handle.ROWID,handle.id,message.ROWID,message.text FROM message,handle WHERE (message.handle_id=handle.ROWID)"						
+					sql_request = "SELECT message.date,message.is_from_me,message.handle_id,handle.ROWID,handle.id,message.ROWID,message.text FROM message,handle WHERE (message.handle_id=handle.ROWID)"
 					cur.execute(sql_request)
 					rows = cur.fetchall()
 					counter = 0
@@ -2448,14 +2448,14 @@ def fct_read_ios_sms(base_db,version_ios):
 							fct_writefile(to_record, output_display)
 
 						counter = counter + 1
-						if counter == 5 and jump == 0 : 
+						if counter == 5 and jump == 0 :
 							res=raw_input("Press enter to continue (j to jump) > ")
 							counter = 0
 							if res == 'j':
 								jump = 1
 
 				elif "4." in version_ios:
-					sql_request = "SELECT date,flags,address,text FROM message"						
+					sql_request = "SELECT date,flags,address,text FROM message"
 					cur.execute(sql_request)
 					rows = cur.fetchall()
 					counter = 0
@@ -2463,7 +2463,7 @@ def fct_read_ios_sms(base_db,version_ios):
 
 					for row in rows:
 						date = str(row["date"])
-						
+
 						if int(row["flags"]) == 2:
 							request = "Date:%s \n  From:%s \n  Message:%s \n " % (datetime.datetime.fromtimestamp(int(date[0:10])).strftime('%Y-%m-%d %H:%M:%S'),row["address"],row["text"])
 							print_green(request)
@@ -2476,7 +2476,7 @@ def fct_read_ios_sms(base_db,version_ios):
 							fct_writefile(to_record, output_display)
 
 						counter = counter + 1
-						if counter == 5 and jump == 0 : 
+						if counter == 5 and jump == 0 :
 							res=raw_input("Press enter to continue (j to jump) > ")
 							counter = 0
 							if res == 'j':
@@ -2484,7 +2484,7 @@ def fct_read_ios_sms(base_db,version_ios):
 
 			print_log("\nResults are stored into " + output_display + "\n")
 			raw_input("Press any key to continue...")
-		except lite.Error, e:	    
+		except lite.Error, e:
 		    print_red("Error %s:" % e.args[0])
 
 		finally:
@@ -2544,7 +2544,7 @@ def fct_exploit_iPhone() :
 				if var_analysis == "1":
 					fct_exploit_Lockdown()
 					var_analysis = "null"
-				elif var_analysis == "2" : 
+				elif var_analysis == "2" :
 					fct_exploit_iTunes_Backup()
 					var_analysis = "null"
 				else:
@@ -2559,7 +2559,7 @@ def fct_exploit_iPhone() :
 
 
 def fct_exploit_iTunes_Backup() :
-	
+
 	if os.path.exists(file_log_ios) :
 		file=open(file_log_ios,'r')
 		lines_log_ios = file.readlines()
@@ -2567,7 +2567,7 @@ def fct_exploit_iTunes_Backup() :
 
 		tab_results = []
 		tab_version = []
-		
+
 		filtre = re.compile('^.+\ to\ (.+)\/(.+)_Info\.plist$',re.IGNORECASE)
 		for i in range(len(lines_log_ios)):
 			res = filtre.findall(lines_log_ios[i])
@@ -2601,7 +2601,7 @@ def fct_exploit_iTunes_Backup() :
 					elif "Product Version" in lines_plist[index_plist]:
 						print_next = 1
 						detect_version = 1
-		
+
 			ios_backup_to_analyse = raw_input("\nChoose a iOS backup to analyze (b to back) > ")
 			if ios_backup_to_analyse != "b":
 				try:
@@ -2614,7 +2614,7 @@ def fct_exploit_iTunes_Backup() :
 						fct_read_ios_calendar(base_db,version_ios)
 						fct_read_ios_contact(base_db,version_ios)
 						ios_backup_to_analyse = "null"
-					else : 
+					else :
 						print_red("\nPlease to choose a valid iOS backup\n")
 						ios_backup_to_analyse = "null"
 				except ValueError:
@@ -2639,7 +2639,7 @@ def fct_exploit_Lockdown() :
 			if match_ios in lines_conf_client[i]:
 				filtre=re.compile('^\[IOS_DEVICES\](.+)',re.IGNORECASE)
 				res=filtre.findall(lines_conf_client[i])
-		
+
 		tab_device = []
 		for files in os.listdir(dir_ios_devices):
 			if "SystemConfiguration" not in files:
@@ -2647,7 +2647,7 @@ def fct_exploit_Lockdown() :
 				tab_device.append(files.replace(".plist",""))
 
 		display_inject_lockdown=raw_input("\nDo you want to copy iOS secrets key within your system ? y/[n] > ")
-		
+
 		if display_inject_lockdown == "y" :
 			if var_uid == 0 :
 				for dest_iPhone_Lockdown in res:
@@ -2665,7 +2665,7 @@ def fct_exploit_Lockdown() :
 
 	else : print_log(dir_ios_devices + " is not available")
 
-	
+
 
 
 ####################################################################################################################################
@@ -2720,7 +2720,7 @@ def fct_exploit_log():
 	print_red("                        ==== Exploit log files ====")
 	print_red("========================================================================")
 	if os.path.exists(file_log_log):
-		
+
 		var_action = "null"
 		while var_action == "null":
 			print_green("\n1: Convert log files and log archives to unique text file (human readable)")
@@ -2728,14 +2728,14 @@ def fct_exploit_log():
 
 			var_action=raw_input("\nYour choice (b to back) > ")
 
-			if var_action == "1": 
+			if var_action == "1":
 				fct_convert_log()
 				var_action = "null"
 			elif var_action == "2":
 				fct_checkout4Mac_Log()
-			elif var_action == "b": 
+			elif var_action == "b":
 				var_action = "no_null"
-			else: 
+			else:
 				print_red("\nPlease to choose 1 or 2 ...\n")
 				var_action = "null"
 
@@ -2849,7 +2849,7 @@ def fct_build_mactime():
 	print_red("                        ==== Build MACTIME ====")
 	print_red("========================================================================")
 
-		
+
 	var_action = "null"
 	while var_action == "null":
 		print_green("\n1: Build Mactime from FLS output")
@@ -2857,14 +2857,14 @@ def fct_build_mactime():
 
 		var_action=raw_input("\nYour choice (b to back) > ")
 
-		if var_action == "1": 
+		if var_action == "1":
 			fct_mactime_fls()
 			var_action = "null"
 		elif var_action == "2":
 			fct_mactime_catalogfile()
-		elif var_action == "b": 
+		elif var_action == "b":
 			var_action = "no_null"
-		else: 
+		else:
 			print_red("\nPlease to choose 1 or 2 ...\n")
 			var_action = "null"
 
@@ -2906,7 +2906,7 @@ def fct_mactime_fls():
 					if int(file_work) < len(tab_ls_work):
 						file_work_name = dir_work + tab_ls_work[int(file_work)]
 						print_log ("Selected file > " + file_work_name)
-						
+
 						#mactime from file_work
 						var_date_display = time.strftime('%y%m%d-%Hh%M%S',time.localtime())
 						dest_file = name_dir_analysis +  var_date_display + "_" + tab_ls_work[int(file_work)].replace(name_dir_analysis,"").replace("timeline.fls","mactime.csv")
@@ -2942,12 +2942,12 @@ def fct_mactime_catalogfile():
 	print_red("\n\n========================================================================")
 	print_red("                      ==== TimeLine from Catalog File ====")
 	print_red("========================================================================")
-	
+
 	var_date_display = time.strftime('%y%m%d-%Hh%M%S',time.localtime())
 	dir_consolidation = "../analysis/" + var_date_display + "_ConsoCatalogFile/"
 	dir_consolidation_b =  "analysis/" + var_date_display + "_ConsoCatalogFile/"
 
-	
+
 	ctg_file = ""
 	jrn_file = ""
 	vhf_file = ""
@@ -2966,8 +2966,8 @@ def fct_mactime_catalogfile():
 			elif ".volheader" in file:
 				vhf_file = file
 				print_green("Volume Header File is available : " + vhf_file)
-			
-		
+
+
 		if ctg_file == "" or jrn_file == "" or vhf_file == "":
 			print_log("\nCatalog, Journal or Volume Header File is not available, please to launch option 6 of Pac4Mac ... \n")
 			sys.exit()
@@ -2985,7 +2985,7 @@ def fct_mactime_catalogfile():
 			os.system("./" + name_ahjp + " -c=" + ctg_file + " -j=" + jrn_file + " -v=" + vhf_file + " -o 0 -out=" + dir_consolidation)
 			print_red("Results are stored into " + dir_work + dir_consolidation_b + "\n")
 			os.chdir(current_cwd)
-	
+
 	else:
 		print_log("\nNo recording, please to launch option 6 of Pac4Mac ... \n")
 
@@ -3000,14 +3000,14 @@ def fct_mactime_catalogfile():
 ##################################################################################################################################
 	################################################################################################################
 def fct_menu_AN():
-	
+
 	if len(tab_ls_results) == 0:
 		print_log("No recording into " + dir_results + ", please to extract data !\n")
 		exit()
-	
+
 	check_conf_ini = raw_input("Please to check configuration of " + conf_client + " file (b to back, e to edit) > ")
 	if check_conf_ini == "b": exit()
-	elif check_conf_ini == "e": 
+	elif check_conf_ini == "e":
 		os.system("open " + conf_client)
 		raw_input("Press any key to continue")
 
@@ -3032,10 +3032,10 @@ def fct_menu_AN():
 	except ValueError:
 		print_red("Please to choose a valid directory\n")
 		return "null"
-	
+
 
 def fct_menu_Exploit() :
-	
+
 	var_analysis = "null"
 
 	while var_analysis == "null":
@@ -3058,8 +3058,8 @@ def fct_menu_Exploit() :
 		print_green("14: Build Mactime")
 		print_green("\nb:  Back")
 		var_analysis=raw_input("\nAnalysis to launch > ")
-		
-		if var_analysis == "1" : 
+
+		if var_analysis == "1" :
 			list_browser=["FIREFOX","CHROME","SAFARI","OPERA"]
 
 			print_red("\n\n========================================================================")
@@ -3082,7 +3082,7 @@ def fct_menu_Exploit() :
 			print_red("\n========================================================================")
 			print_red("                   ==== \\Exploit Browser History ====")
 			print_red("========================================================================")
-		
+
 		elif var_analysis == "2":
 			list_browser=["FIREFOX","CHROME","SAFARI","OPERA"]
 
@@ -3103,7 +3103,7 @@ def fct_menu_Exploit() :
 			print_red("\n========================================================================")
 			print_red("                   ==== \\Exploit Browser Cookies ====")
 			print_red("========================================================================")
-		
+
 		elif var_analysis == "3" :
 			list_browser = ["FIREFOX","CHROME","SAFARI","OPERA"]
 
@@ -3127,7 +3127,7 @@ def fct_menu_Exploit() :
 			print_red("\n========================================================================")
 			print_red("                   ==== \\Exploit Browser Downloads ====")
 			print_red("========================================================================")
-		
+
 		elif var_analysis == "4": fct_exploit_skype()
 		elif var_analysis == "5": fct_exploit_ical()
 		elif var_analysis == "6": fct_exploit_emails()
@@ -3140,7 +3140,7 @@ def fct_menu_Exploit() :
 		elif var_analysis == "13": fct_exploit_log()
 		elif var_analysis == "14": fct_build_mactime()
 		elif var_analysis == "b": exit()
-		else: 
+		else:
 			print_red("\nPlease to choose a valid option\n")
 
 		var_analysis = "null"
@@ -3174,7 +3174,7 @@ while dir_work == "null":
 
 #directory for res analysis
 name_dir_analysis = dir_work + 'analysis/'
-if not os.path.isdir(name_dir_analysis): 
+if not os.path.isdir(name_dir_analysis):
 	os.makedirs(name_dir_analysis)
 
 #file version osx
@@ -3186,7 +3186,7 @@ if os.path.exists(file_version_dest) :
 	target_version = lines_version[0]
 	print_log ("  System > " + target_version.strip())
 
-#file log pac4mac 
+#file log pac4mac
 file_history_dest = dir_work + '#log_pac4mac.txt'
 
 if os.path.exists(file_history_dest) :
@@ -3194,7 +3194,7 @@ if os.path.exists(file_history_dest) :
 	lines_version = file.readlines()
 	file.close()
 
-	print_log("  History > ")	
+	print_log("  History > ")
 	for i in range(len(lines_version)):
 		print_log("\t" + lines_version[i].strip("\n"))
 	print_green("========================================================================")
@@ -3215,7 +3215,7 @@ file_password_database = dir_passwords + 'ALL-passwords_1.txt'
 #files system report
 file_system_report = dir_work + 'sys_dump.txt'
 
-# browser_dump files 
+# browser_dump files
 file_log_browser = dir_work + 'browser_dump.txt'
 dir_browser_dump = dir_work + 'browser_dump/'
 
@@ -3290,6 +3290,3 @@ dir_results_catalogfile = dir_work + 'catalogFiles/'
 
 #display exploit menu
 fct_menu_Exploit()
-
-
-
