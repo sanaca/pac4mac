@@ -68,7 +68,7 @@ var_attack = "null"
 
 while var_attack != "q":
 	print_red_bold("\n\n=======================================================================================")
-	print_green("                       Pac4Mc, Plug And Check for Mac OS X :) ")
+	print_green("                       Pac4Mc, Plug And Check for Mac OS X and macOS :) ")
 	print_green("               		          Forensics framework \n\n")
 
 	var_version=os.popen('uname -r | cut -d "." -f 1').read().strip("\n")
@@ -77,7 +77,7 @@ while var_attack != "q":
 	elif var_version == "11" :
 		print_red("Votre version d'OSX est: Lion / 10.7")
 	elif var_version == "12" :
-		print_red("Votre version d'OSX est: Mountain Lion / 10.8  ")
+		print_red("Votre version d'OSX est: Mountain Lion / 10.8")
 	elif var_version == "13" :
 		print_red("Votre version d'OSX est: Mavericks / 10.9")
 	elif var_version == "14" :
