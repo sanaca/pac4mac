@@ -68,7 +68,7 @@ var_attack = "null"
 
 while var_attack != "q":
 	print_red_bold("\n\n=======================================================================================")
-	print_green("                       Pac4Mc, Plug And Check for Mac OS X and macOS :) ")
+	print_green("                       Pac4Mc, Plug And Check for Mac OSX and macOS :) ")
 	print_green("               		          Forensics framework \n\n")
 
 	var_version=os.popen('uname -r | cut -d "." -f 1').read().strip("\n")
@@ -91,15 +91,15 @@ while var_attack != "q":
 	elif var_version == "18" :
 		print_red("Votre version d'OSX est: Mojave / 10.14")
 	elif var_version == "19" :
-		print_red("Votre version d'OSX est: Catalina / 10.15")
+		print_red("Votre version de macOS est: Catalina / 10.15")
 	elif var_version == "20" :
-		print_red("Votre version d'OSX est: Big Sur / 11.6")
+		print_red("Votre version de macOS est: Big Sur / 11.6")
 	elif var_version == "21" :
-		print_red("Votre version d'OSX est: Monterey / 12.4")
+		print_red("Votre version de macOS est: Monterey / 12.4")
 	elif var_version == "22" :
-		print_red("Votre version d'OSX est: Ventura / 13.5")
+		print_red("Votre version de macOS est: Ventura / 13.5")
 	elif var_version == "23" :
-		print_red("Votre version d'OSX est: Sonoma / 14.1")
+		print_red("Votre version de macOS est: Sonoma / 14.1")
 	else:
 		print_red("\n\nVersion d'OSX non supporté.\n\n")
 		exit()
